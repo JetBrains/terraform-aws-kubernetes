@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+set -xe
+
+terraform_fmt() {
+make clean
+terraform fmt --recursive ./
+}
+
+packer_fmt() {
+    packer fmt -recursive ./
+}
+
+# __MAIN__
+terraform_fmt
+packer_fmt

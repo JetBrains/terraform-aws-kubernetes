@@ -1,0 +1,20 @@
+---
+name: Dependabot
+
+on:
+  schedule:
+    - cron: "0 6 * * *"
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  GIT_TARGET_BRANCH: "main"
+
+jobs:
+  dependabot-terraform:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'update dependencies'
+        uses: patrickjahns/dependabot-terraform-action@v1
+        with:
+          target_branch: ${{ env.GIT_TARGET_BRANCH }}
+          token: ${{ env.GITHUB_TOKEN }}

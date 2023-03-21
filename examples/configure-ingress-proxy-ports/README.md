@@ -1,0 +1,83 @@
+<!-- BEGIN_TF_DOCS -->
+# terraform-aws-kubernetes configure the proxy ports of the Ingress Controllers
+
+This module shows how to configure the TCP/UDP proxy in the Ingress Controllers that come with `terraform-aws-kubernetes`
+module.
+
+## Usage
+
+In the block of code below, observe the `locals {}` section. Let's consider the `private_tcp_proxy_ports` attribute.
+It is a list of objects. Each object has a stable data structure: the keys `name` and `value` are not optional.
+
+It is not possible to specify YAML objects. The `name` shall define tree-like path where each node of the tree
+is delimited by the `.` character. This allows to resemble the YAML objects.
+
+```
+locals {
+title = "kube-ingress-proxy"
+tags = {
+DeploymentType = "Example"
+}
+private_tcp_proxy_ports = [{
+name  = "tcp.8080"
+value = "default/my-svc:8888"
+}]
+public_tcp_proxy_ports = [{
+name  = "tcp.8080"
+value = "default/my-svc:8888"
+}]
+private_udp_proxy_ports = [{
+name  = "tcp.53"
+value = "kube-system/kube-dns:53"
+}]
+public_udp_proxy_ports = [{
+name  = "tcp.53"
+value = "kube-system/kube-dns:53"
+}]
+}
+
+module "eks_minimal" {
+source = "../.."
+
+kubernetes_cluster_services_configs = {
+kube_public_tcp_proxy_configs  = local.public_tcp_proxy_ports
+kube_public_ud_proxy_configs   = local.public_udp_proxy_ports
+kube_private_tcp_proxy_configs = local.private_tcp_proxy_ports
+kube_private_udp_proxy_configs = local.private_udp_proxy_ports
+}
+name = local.title
+tags = local.tags
+}
+```
+
+## Compatibility
+
+Use this module with Terraform 1.3.0+ version.
+
+### Steps
+
+1. Login to your AWS account where you will be able to create the Module's resources;
+
+2. `make terraform-up`;
+
+3. To destroy all the resources created with the step 2 execute the command `make terraform-down`.
+
+
+## Requirements
+
+No requirements.
+## Providers
+
+No providers.
+## Resources
+
+No resources.
+## Inputs
+
+No inputs.
+## Outputs
+
+| Name | Description |
+|------|-------------|
+| <a name="output_values"></a> [values](#output\_values) | n/a |
+<!-- END_TF_DOCS -->

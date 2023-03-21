@@ -1,0 +1,47 @@
+customLabels:
+  cluster_service: "true"
+  public: "false"
+controller:
+  defaultFsType: ext4
+  extraCreateMetadata: "true"
+  enableMetrics: "true"
+  replicaCount: 2
+  serviceAccount:
+    create: false
+node:
+  serviceAccount:
+    create: "true"
+storageClasses:
+  - name: standard
+    annotations:
+      storageclass.kubernetes.io/is-default-class: "true"
+    volumeBindingMode: WaitForFirstConsumer
+    reclaimPolicy: Retain
+    allowVolumeExpansion: true
+    parameters:
+      "csi.storage.k8s.io/fstype": ext3
+      encrypted: "true"
+      type: gp3
+      allowAutoIOPSPerGBIncrease: "true"
+  - name: golden
+    annotations:
+      storageclass.kubernetes.io/is-default-class: "false"
+    volumeBindingMode: WaitForFirstConsumer
+    reclaimPolicy: Retain
+    allowVolumeExpansion: true
+    parameters:
+      "csi.storage.k8s.io/fstype": ext3
+      encrypted: "true"
+      type: io1
+      allowAutoIOPSPerGBIncrease: "true"
+  - name: platinum
+    annotations:
+      storageclass.kubernetes.io/is-default-class: "false"
+    volumeBindingMode: WaitForFirstConsumer
+    allowVolumeExpansion: true
+    reclaimPolicy: Retain
+    parameters:
+      "csi.storage.k8s.io/fstype": xfs
+      encrypted: "true"
+      type: io2
+      allowAutoIOPSPerGBIncrease: "true"

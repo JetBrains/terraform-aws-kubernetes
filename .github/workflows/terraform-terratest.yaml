@@ -1,0 +1,24 @@
+---
+name: TerraformTerratest
+
+on:
+  workflow_dispatch:
+  pull_request:
+
+env:
+  GITHUB_OWNER: ${{ github.repository_owner	}}
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+  TFE_TOKEN: ${{ secrets.TFE_TOKEN }}
+jobs:
+  terratest-run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+      - name: Execute Tests
+        id: run-terratest-tests
+        run: |
+          make tests
