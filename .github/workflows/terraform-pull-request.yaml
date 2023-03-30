@@ -14,32 +14,22 @@ jobs:
     steps:
       - name: 'Checkout'
         uses: actions/checkout@v3
-      - name: Terraform Format
-        uses: hashicorp/terraform-github-actions@master
-        with:
-          tf_actions_version: latest
-          tf_actions_subcommand: fmt
-          tf_actions_comment: true
+      - name: 'Configure Terraform'
+        uses: hashicorp/setup-terraform@v2
+      - name: 'Terraform Format'
+        run: terraform fmt -check -recursive
 
   terraform-validate:
     runs-on: ubuntu-latest
     steps:
       - name: 'Checkout'
         uses: actions/checkout@v3
-      - name: Terraform Init
-        uses: hashicorp/terraform-github-actions@master
-        with:
-          tf_actions_version: latest
-          tf_actions_subcommand: init
-          tf_actions_comment: true
+      - name: 'Configure Terraform'
+        uses: hashicorp/setup-terraform@v2
+      - name: 'Terraform Init'
+        run: terraform init
       - name: 'Terraform Validate'
-        uses: hashicorp/terraform-github-actions@master
-        env:
-          AWS_DEFAULT_REGION: eu-west-1
-        with:
-          tf_actions_version: latest
-          tf_actions_subcommand: validate
-          tf_actions_comment: true
+        run: terraform validate -no-color
 
   terraform-docs:
     runs-on: ubuntu-latest
@@ -53,7 +43,6 @@ jobs:
         with:
           git-commit-message: "terraform-docs: Update module usage"
           git-push: "true"
-          #recursive: "true"
           output-file: README.md
           output-method: inject
           find-dir: .
@@ -69,6 +58,7 @@ jobs:
         with:
           tfsec_args: --concise-output
           soft_fail: false
+          github_token: ${{ env.GITHUB_TOKEN }}
 
       - name: 'Terraform pr commenter'
         uses: aquasecurity/tfsec-pr-commenter-action@v1.3.1
