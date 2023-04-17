@@ -65,3 +65,12 @@ jobs:
         with:
           tfsec_args: --concise-output
           github_token: ${{ env.GITHUB_TOKEN }}
+  terraform-ermetic:
+    runs-on: ubuntu-latest
+    steps:
+     - uses: actions/checkout@v3
+     - name: Scan with Ermetic
+       uses: ermetic/actions/iac/scan@v1
+       with:
+         api-token: ${{ secrets.ERMETIC_API_TOKEN }}
+         api-url: https://eu.app.ermetic.com
