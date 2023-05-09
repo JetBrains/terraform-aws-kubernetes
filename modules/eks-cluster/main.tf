@@ -42,6 +42,7 @@ module "eks" {
 
   # ENCRYPTION KEY
   create_kms_key                  = local.eks_params.kms_config.create_kms_key
+  kms_key_administrators          = [for r in local.eks_params.eks_cluster_admin_iam_roles : "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${r}"]
   cluster_encryption_config       = local.eks_params.kms_config.cluster_encryption_config
   kms_key_deletion_window_in_days = local.eks_params.kms_config.kms_key_deletion_window_in_days
   enable_kms_key_rotation         = local.eks_params.kms_config.enable_kms_key_rotation
