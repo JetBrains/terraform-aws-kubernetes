@@ -1,6 +1,8 @@
 <!-- BEGIN_TF_DOCS -->
 # terraform-aws-kubernetes
 
+[![official JetBrains project](https://jb.gg/badges/official.svg)](https://confluence.jetbrains.com/display/ALL/JetBrains+on+GitHub)
+
 This repository contains a Terraform Module that implements an architectural blueprint for Kubernetes in AWS.
 The fundamental component of this module is Elastic Kubernetes Service (EKS).
 
