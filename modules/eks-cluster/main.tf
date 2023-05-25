@@ -19,6 +19,12 @@ module "network" {
   tags = local.tags
 }
 
+// The below datas ources refer to a workaround with an issue with the default KMS key without resource-based policy:
+// associated with it. Ref: https://github.com/terraform-aws-modules/terraform-aws-eks/issues/2327#issuecomment-1355581682
+data "aws_iam_session_context" "current" {
+  # "This data source provides information on the IAM source role of an STS assumed role. For non-role ARNs, this data source simply passes the ARN through in issuer_arn."
+  arn = data.aws_caller_identity.current.arn
+}
 
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
@@ -42,7 +48,7 @@ module "eks" {
 
   # ENCRYPTION KEY
   create_kms_key                  = local.eks_params.kms_config.create_kms_key
-  kms_key_administrators          = [for r in local.eks_params.eks_cluster_admin_iam_roles : "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${r}"]
+  kms_key_administrators          = [data.aws_iam_session_context.current.issuer_arn]
   cluster_encryption_config       = local.eks_params.kms_config.cluster_encryption_config
   kms_key_deletion_window_in_days = local.eks_params.kms_config.kms_key_deletion_window_in_days
   enable_kms_key_rotation         = local.eks_params.kms_config.enable_kms_key_rotation
