@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 'Checkout'
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: 'Configure Terraform'
         uses: hashicorp/setup-terraform@v2
       - name: 'Terraform Format'
@@ -23,7 +23,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 'Checkout'
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: 'Configure Terraform'
         uses: hashicorp/setup-terraform@v2
       - name: 'Terraform Init'
@@ -35,7 +35,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 'Checkout'
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.ref }}
       - name: 'Update module usage docs and push any changes back to PR branch'
@@ -51,7 +51,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 'Checkout'
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: 'Terraform security scan'
         uses: aquasecurity/tfsec-action@v1.0.3
@@ -68,7 +68,7 @@ jobs:
   terraform-ermetic:
     runs-on: ubuntu-latest
     steps:
-     - uses: actions/checkout@v3
+     - uses: actions/checkout@v4
      - name: Scan with Ermetic
        uses: ermetic/actions/iac/scan@v1
        with:
