@@ -19,7 +19,7 @@ module "network" {
   tags = local.tags
 }
 
-// The below datas ources refer to a workaround with an issue with the default KMS key without resource-based policy:
+// The below datasources refer to a workaround with an issue with the default KMS key without resource-based policy:
 // associated with it. Ref: https://github.com/terraform-aws-modules/terraform-aws-eks/issues/2327#issuecomment-1355581682
 data "aws_iam_session_context" "current" {
   # "This data source provides information on the IAM source role of an STS assumed role. For non-role ARNs, this data source simply passes the ARN through in issuer_arn."
