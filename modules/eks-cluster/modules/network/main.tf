@@ -3,7 +3,7 @@
 */
 module "network" {
   source  = "terraform-aws-modules/vpc/aws"
-  version = "3.18.1"
+  version = "5.1.2"
 
   name = local.network_params.name
 
