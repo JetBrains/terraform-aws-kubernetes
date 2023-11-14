@@ -46,7 +46,7 @@ controller:
       cpu: 500m
       memory: 256Mi
   autoscaling:
-    enabled: "true"
+    enabled: "false"
     minReplicas: 1
     maxReplicas: 7
     targetCPUUtilizationPercentage: 71
