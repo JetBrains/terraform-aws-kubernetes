@@ -58,7 +58,7 @@ variable "vpc_nat_gateway_type" {
 
 variable "kubernetes_api_version" {
   type        = string
-  default     = "1.23"
+  default     = "1.26"
   description = <<-EOF
     Specify the version of the Kubernetes API.
   EOF
