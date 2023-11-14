@@ -1,8 +1,16 @@
 <a name="unreleased"></a>
 ## [Unreleased]
 
+### Features
+- update the Kubernetes API version to 1.26 ([#11](/issues/11))
+  
+  
+<a name="v2.5.0"></a>
+## [v2.5.0] - 2023-11-14
 ### Bug Fixes
-- [network] upgrade the version of the VPC module ([#10](/issues/10))
+- disable the autoscaling in the ingress controllers: public and private
+  - increase the version of the kubernetes API to 1.26
+  - [network] upgrade the version of the VPC module ([#10](/issues/10))
   
   
 <a name="v2.4.0"></a>
@@ -48,7 +56,8 @@
 - first commit
   
   
-[Unreleased]: /compare/v2.4.0...HEAD
+[Unreleased]: /compare/v2.5.0...HEAD
+[v2.5.0]: /compare/v2.4.0...v2.5.0
 [v2.4.0]: /compare/v2.2.0...v2.4.0
 [v2.2.0]: /compare/v2.1.0...v2.2.0
 [v2.1.0]: /compare/v2.3.0...v2.1.0
