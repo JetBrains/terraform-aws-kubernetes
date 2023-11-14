@@ -1,7 +1,16 @@
 <a name="unreleased"></a>
 ## [Unreleased]
 
-### Features
+### Bug Fixes
+- [network] upgrade the version of the VPC module ([#10](/issues/10))
+  
+  
+<a name="v2.4.0"></a>
+## [v2.4.0] - 2023-09-13
+### Bug Fixes
+- [network] upgrade the version of the VPC module
+  
+  ### Features
 - licence and fix the default kms key administrators ([#7](/issues/7))
   
   
@@ -39,7 +48,8 @@
 - first commit
   
   
-[Unreleased]: /compare/v2.2.0...HEAD
+[Unreleased]: /compare/v2.4.0...HEAD
+[v2.4.0]: /compare/v2.2.0...v2.4.0
 [v2.2.0]: /compare/v2.1.0...v2.2.0
 [v2.1.0]: /compare/v2.3.0...v2.1.0
 [v2.3.0]: /compare/v2.0.0...v2.3.0
