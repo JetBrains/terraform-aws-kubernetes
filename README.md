@@ -41,21 +41,21 @@ The minimum supported Terraform version is: 1.3.0.
 
 ## Repository organization
 
-* [examples](../../../JetBrains/Terraform/terraform-aws-kubernetes/examples): this folder contains ready to use examples that show how to use this Module;
+* [examples](./examples): this folder contains ready to use examples that show how to use this Module;
 
 * [tests](./test): this folder contains a list of automated tests for this Module and examples;
 
-* [lib](../../../JetBrains/Terraform/terraform-aws-kubernetes/lib): this folder contains a list of local utilities, mostly Makefiles, to support the
+* [lib](./lib): this folder contains a list of local utilities, mostly Makefiles, to support the
   contributor's maintenance effort of this Module;
 
-* [modules](../../../JetBrains/Terraform/terraform-aws-kubernetes/modules): this folder contains a list of local Terraform modules that the Root Module uses;
+* [modules](./modules): this folder contains a list of local Terraform modules that the Root Module uses;
 
-* [.github](../../../JetBrains/Terraform/terraform-aws-kubernetes/.github): this folder contains a list of GitHub workflows to support contributions
+* [.github](./.github): this folder contains a list of GitHub workflows to support contributions
   during change requests and releases of this Module.
 
 ## Usage guides
 
-Refer to this [page](../../../JetBrains/Terraform/terraform-aws-kubernetes/docs/GUIDES.md) for details in regard to cluster services usage instructions.
+Refer to this [page](./docs/GUIDES.md) for details in regard to cluster services usage instructions.
 
 ## Contribution guides
 
