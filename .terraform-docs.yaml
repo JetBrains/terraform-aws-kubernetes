@@ -14,61 +14,29 @@ content: |-
   
   [![official JetBrains project](https://jb.gg/badges/official.svg)](https://confluence.jetbrains.com/display/ALL/JetBrains+on+GitHub)
   
-  This repository contains a Terraform Module that implements an architectural blueprint for Kubernetes in AWS.
-  The fundamental component of this module is Elastic Kubernetes Service (EKS).
+  This repository contains a Terraform Module that sets up a Kubernetes infrastructure on AWS using Elastic Kubernetes Service (EKS).
+  It provides flexibility in managing its own internal networking infrastructure or using an external one, and supports different types
+  of node pools. The repository also includes guides for usage and contribution, automated tests, and examples for ready use.
 
   ## Compatibility
 
-  Use this module with Terraform 1.3.0+ version.
-
-  ## Requirements
-  
-  The VPC shall allow flexible operations of the network and its resources.
-  
-  The user deploying this Module shall have Full Administrator permissions in the targeted AWS account.
+  The minimum supported Terraform version is: 1.3.0.
   
   ## Features
-
-  * The Module creates and configures a Virtual Private Cloud (VPC) IPv4 network;
   
-  * The Module offers the following:
+  * Configure Kubernetes cluster network with options for internal and external networking, VPC settings, subnetting, DNS, DHCP, ACLs, VPC tags and other.
   
-    * AWS managed Kubernetes nodes;
+  * Support both AWS-managed and self-managed compute pools, with detailed configurations for instance types, scaling, and labeling.
   
-    * Private and Public ingresses;
+  * Specify IAM roles and policies for the Kubernetes cluster, service accounts, and encryption key management.
   
-    * IAM Roles for Service Accounts (IRSA);
+  * Include addons for the Kubernetes cluster such as CoreDNS, VPC CNI, kube-proxy, and more with conflict resolution strategies.
   
-    * Secret encryption with AWS managed KMS key;
+  * Provide detailed storage class configurations, including default classes and custom classes with parameters like encryption and volume binding modes.
   
-    * Built-in security groups to protect the intra-cluster communication.
+  * Set up monitoring, logging, and autoscaling using Helm charts with configurable repository, chart versions, and values.
   
-  * The following Kubernetes namespaces have a clear concern:
-  
-    * *kube-public-ingress*: namespace contains the Ingress Controller that watches for
-      Ingress objects that have the ingressClass set to public-ingress;
-  
-    * *kube-private-ingress*: namespace contains the Ingress Controller that watches for
-      Ingress objects that have the ingressClass set to private-ingress;
-  
-    * *kube-monitoring*: namespace contains the Prometheus Operator that watches for
-      ServiceMonitor, PodMonitor, PrometheusRule objects that have set `release:
-      kube-prometheus-stack` annotation.
-  
-    * *kube-system*: namespace contains Kubernetes system services and additional self-managed
-      extensions for EKS.
-      
-  ## Known points of improvement
-  
-  * Harden the solution for security guidelines;
-  
-  * Decouple the Helm Provider and Kubernetes provider from EKS authentication and authorization details;
-  
-  * Harden and improve the reliability of all internal cluster services;
-  
-  * Enable end-users of this Module to customize the settings for all cluster service;
-  
-  * Enable the Helm Charts in use to be consumed from a Private Helm Chart repository and Private Container registry.
+  * Provide means for adding custom configurations to the Kubernetes cluster, such as custom Helm charts, manifests, and scripts.
   
   ## Core concepts
   
@@ -95,82 +63,6 @@ content: |-
   
   * [.github](./.github): this folder contains a list of GitHub workflows to support contributions
     during change requests and releases of this Module.
-  
-  ## Architecture
-  
-  ### Network organization
-  
-  This section describes how the networking resources, that are created by this module, are organized at run time.
-  
-  <img src="./docs/diagrams/eks-spoke.png" align="middle" alt="EKS Networking Spoke" width="80%"/>
-  
-  The Module expects that the given `vpc_cidr` is generous in size to allow the creation of 4 subnet groups. Per subnet group the purpose of
-  each follows:
-  
-  * *Public Ingress Subnet Group*: this is an Internet accessible network that will be used by Kubernetes to create ingress
-    objects that need to be published over the Internet;
-  
-  * *Private Ingress Subnet Group*: this is a private network that will be used by Kubernetes to create ingress
-    objects that need to be used over the Intranet;
-  
-  * *Private Nodes Subnet Group*: this is a private network that will be used by EKS service to deploy the EC2 instances.
-    This network does not allow direct access from the Internet. The EKS nodes can reach other services over the Internet.
-    It is required by the AWS managed nodes.
-  
-  * *Private Isolated Subnet Group*: this is a private network. It does not allow direct access from the Internet and it does
-    not allow access to the Internet. This network is recommended for local, isolated and self-contained resources.
-  
-  Notice that upfront planning for the available pool of networking IPs is undeniably mandatory. Avoid constrained networking scalability.
-  Plan for evolutionary spoke upfront and review how the EKS spoke will look like in 3 years. 
-  
-  ### Elastic Kubernetes Service distribution model
-  
-  This section describes general assumptions when this Module is used to create an EKS-like Kubernetes cluster.
-  
-  <img src="./docs/diagrams/eks.png" align="middle" alt="EKS Cluster" width="80%"/>
-  
-  EKS is not a global service. It must be created and hosted in a valid AWS region. Within this region,
-  this Module manages the network with high-availability considerations in mind. 
-  
-  This module employs three availability zones. The EC2 instances that are part of the Kubernetes nodes pool will be
-  distributed across them. Any Load Balancer created from within the Kubernetes cluster will be zone redundant as well;
-  this implies that this type of resource will be identified inside each availability zone by an IPv4 address.
-  
-  The Kubernetes cluster is designed to include as much as feasible production-like features. This Module enables by default:
-  
-  * IAM Roles for Service Accounts;
-  
-  * AWS-managed encryption of the Kubernetes secrets in Etcd;
-  
-  * Kubernetes API logs.
-  
-  ## Known issues
-  
-  ### Log Group is not cleaned up when the Terraform destroy operation finishes
-  
-  It is a resource leak that happens in the Terraform AWS Provider during the destroy operation. This happens because
-  the owner of the Log Group is the EKS cluster that is destroyed before the Log Group can be removed. Ideally it should
-  be removed while the EKS cluster is still live but because of implicit IAM policy references this is not possible.
-  
-  ### KMS key for secrets encryption becomes inaccessible 
-  
-  Notice that in case of manual deployments and users using multiple roles within an AWS account can induce to
-  wrong ownership of the KMS key that is used to encrypt the Kubernetes secrets in EKS. Make sure that the deployment
-  user consistently uses the same role such that to avoid access denied situation on the KMS key.
-  
-  ### The aws_auth config map does not exist
-  
-  From time to time, during the initial deployment of this module it can happen that the `aws_auth` ConfigMap object is
-  not created in time and the deployment fails mentioning that the ConfigMap does not exist. At the moment, this issue
-  is under investigation. To fix, just re-run the deployment.
-  
-  ### The ingress controller does not allow mixed protocols in TCP proxy mode
-  
-  The Ingress Controller allows to expose Kubernetes application to the world that is outside the Kubernetes cluster.
-  The in use Ingress Controller (Kubernetes Nginx) allows to specify HTTP and TCP proxies. The main limitation is related
-  with the TCP proxies which do not support mixed protocols. It is possible to use only TCP or only UDP. 
-  
-  Check out this [example](./examples/configure-ingress-proxy-ports/main.tf) for details.
   
   ## Usage guides
   

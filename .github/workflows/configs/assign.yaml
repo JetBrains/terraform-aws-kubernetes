@@ -1,0 +1,27 @@
+# Set to true to add reviewers to pull requests
+addReviewers: true
+
+# Set addAssignees to 'author' to set the PR creator as the assignee.
+addAssignees: author
+
+# Set to true to add reviewers from different groups to pull requests
+useReviewGroups: true
+
+# A number of reviewers added to the pull request
+# Set 0 to add all the reviewers (default: 0)
+numberOfReviewers: 1
+
+# A list of reviewers, split into different groups, to be added to pull requests (GitHub user name)
+reviewGroups:
+  core:
+    - apetrovYa
+
+# A list of keywords to be skipped the process that add reviewers if pull requests include it
+skipKeywords:
+  - wip
+
+# A list of labels to be skipped the process that adds reviewers if pull requests include it
+filterLabels:
+  # Not run
+  exclude:
+    - wip

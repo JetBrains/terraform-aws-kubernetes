@@ -10,16 +10,15 @@ ifeq ($(origin .RECIPEPREFIX), undefined)
 endif
 .RECIPEPREFIX = >
 
-# It keeps the root module clean. It removes bad files from unstage area in Git.
+# It keeps the root module clean. It removes bad files from staging area in Git.
 clean:
-> @rm -rf .*.hcl
-> @rm -rf *.backup
-> @rm -rf *.tfstate
-> @rm -fr .terraform
-> @rm -rf *.json
-> @rm -rf *.tfplan
-> @rm -fr .infracost
-> @rm -fr .test-data
+> @find . -name "*.hcl" -type f -exec rm -f {} \;
+> @find . -name "*.backup" -type f -exec rm -f {} \;
+> @find . -name "*.tfstate" -type f -exec rm -f {} \;
+> @find . -name ".terraform" -type d -exec rm -fr {} \;
+> @find . -name "*.tfplan" -type f -exec rm -f {} \;
+> @find . -name ".infracost" -type d -exec rm -fr {} \;
+> @find . -name ".test-data" -type d -exec rm -fr {} \;
 
 # It formats the code.
 terraform-fmt:

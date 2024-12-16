@@ -1,0 +1,33 @@
+documentation:
+  - any:
+      - changed-files:
+          - any-glob-to-any-file: '**/*.md'
+          - any-glob-to-any-file: '.terraform-docs.yaml'
+      - head-branch: ['^doc', 'doc']
+
+chart:
+  - all:
+      - changed-files:
+          - any-glob-to-any-file: 'charts/**/*'
+
+administration:
+  - any:
+      - changed-files:
+          - any-glob-to-any-file: '.github/**/*'
+          - any-glob-to-any-file: 'CODE_OF_CONDUCT.md'
+          - any-glob-to-any-file: 'README.md'
+          - any-glob-to-any-file: 'SECURITY.md'
+          - any-glob-to-any-file: 'MAINTAINERS.yaml'
+          - any-glob-to-any-file: 'LICENCES/**/*'
+          - any-glob-to-any-file: 'lib/**/*'
+          - any-glob-to-any-file: '.editorconfig'
+          - any-glob-to-any-file: '.gitignore'
+
+feature:
+  - head-branch: ['^feature', 'feature']
+
+release:
+  - head-branch: ['^release', 'release']
+
+fix:
+  - head-branch: ['^fix', 'fix']

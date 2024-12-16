@@ -58,4 +58,6 @@ terraform.rc
 
 */**/.env
 
-
+# Ingore any test data files that are generated when a test fails with the command `make tests`
+**/.test-data/*
+/examples/external-network/.test-data/
