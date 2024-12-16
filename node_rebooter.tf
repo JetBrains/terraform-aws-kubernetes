@@ -22,7 +22,7 @@ VALUES
 
 module "kube_node_patcher" {
   count                                                = var.cluster_node_patcher_create ? 1 : 0
-  source                                               = "../../../JetBrains/Terraform/terraform-aws-kubernetes/modules/feature-node-patcher"
+  source                                               = "./modules/feature-node-patcher"
   cluster_node_rebooter_helm_chart_repository          = try(coalesce(var.cluster_node_patcher.helm_chart_repository, "oci://public.registry.jetbrains.space/p/helm/library"), "oci://public.registry.jetbrains.space/p/helm/library")
   cluster_node_rebooter_helm_chart_repository_config   = try(coalesce(var.cluster_node_patcher.helm_chart_repository_config, null), null)
   cluster_node_rebooter_helm_chart_version             = try(coalesce(var.cluster_node_patcher.helm_chart_version, "5.4.3"), "5.4.3")

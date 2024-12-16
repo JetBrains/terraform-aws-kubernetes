@@ -132,7 +132,7 @@ locals {
 
 module "cluster_monitoring" {
   count                                             = var.cluster_monitoring_create ? 1 : 0
-  source                                            = "../../../JetBrains/Terraform/terraform-aws-kubernetes/modules/feature-monitoring-metrics"
+  source                                            = "./modules/feature-monitoring-metrics"
   cluster_monitoring_helm_chart_repository          = try(coalesce(var.cluster_monitoring.helm_chart_repository, "oci://public.registry.jetbrains.space/p/helm/library"), "oci://public.registry.jetbrains.space/p/helm/library")
   cluster_monitoring_helm_chart_repository_config   = try(coalesce(var.cluster_monitoring.helm_chart_repository_config, null), null)
   cluster_monitoring_helm_chart_version             = try(coalesce(var.cluster_monitoring.helm_chart_version, "56.21.1"), "56.21.1")

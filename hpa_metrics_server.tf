@@ -1,6 +1,6 @@
 module "kube_metrics_server" {
   count                                                 = var.cluster_metrics_server_create ? 1 : 0
-  source                                                = "../../../JetBrains/Terraform/terraform-aws-kubernetes/modules/feature-metrics-server"
+  source                                                = "./modules/feature-metrics-server"
   cluster_metrics_server_helm_chart_repository          = try(coalesce(var.cluster_metrics_server.helm_chart_repository, "oci://public.registry.jetbrains.space/p/helm/library"), "oci://public.registry.jetbrains.space/p/helm/library")
   cluster_metrics_server_helm_chart_repository_config   = try(coalesce(var.cluster_metrics_server.helm_chart_repository_config, null), null)
   cluster_metrics_server_helm_chart_version             = try(coalesce(var.cluster_metrics_server.helm_chart_version, "3.12.0"), "3.12.0")

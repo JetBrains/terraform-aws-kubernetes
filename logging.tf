@@ -281,7 +281,7 @@ VALUES
 
 module "cluster_logging" {
   count                                          = var.cluster_logging_create ? 1 : 0
-  source                                         = "../../../JetBrains/Terraform/terraform-aws-kubernetes/modules/feature-grafana-loki"
+  source                                         = "./modules/feature-grafana-loki"
   cluster_logging_helm_chart_repository          = try(coalesce(var.cluster_logging.helm_chart_repository, "oci://public.registry.jetbrains.space/p/helm/library"), "oci://public.registry.jetbrains.space/p/helm/library")
   cluster_logging_helm_chart_repository_config   = try(coalesce(var.cluster_logging.helm_chart_repository_config, null), null)
   cluster_logging_helm_chart_version             = try(coalesce(var.cluster_logging.helm_chart_version, "5.43.3"), "5.43.3")
@@ -298,7 +298,7 @@ module "cluster_logging" {
 
 module "cluster_logging_collector" {
   count                                                    = var.cluster_logging_create ? 1 : 0
-  source                                                   = "../../../JetBrains/Terraform/terraform-aws-kubernetes/modules/feature-grafana-promtail"
+  source                                                   = "./modules/feature-grafana-promtail"
   cluster_logging_collector_helm_chart_repository          = try(coalesce(var.cluster_logging_collector.helm_chart_repository, "oci://public.registry.jetbrains.space/p/helm/library"), "oci://public.registry.jetbrains.space/p/helm/library")
   cluster_logging_collector_helm_chart_repository_config   = try(coalesce(var.cluster_logging_collector.helm_chart_repository_config, null), null)
   cluster_logging_collector_helm_chart_version             = try(coalesce(var.cluster_logging_collector.helm_chart_version, "6.15.5"), "6.15.5")

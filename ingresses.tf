@@ -274,7 +274,7 @@ VALUES
 
 module "cluster_public_ingress_controller" {
   count                                  = var.cluster_public_ingress_create ? 1 : 0
-  source                                 = "../../../JetBrains/Terraform/terraform-aws-kubernetes/modules/template-ingress"
+  source                                 = "./modules/template-ingress"
   ingress_helm_chart_repository          = try(coalesce(var.cluster_public_ingress.helm_chart_repository, "oci://public.registry.jetbrains.space/p/helm/library"), "oci://public.registry.jetbrains.space/p/helm/library")
   ingress_helm_chart_repository_config   = try(coalesce(var.cluster_public_ingress.helm_chart_repository_config, null), null)
   ingress_helm_chart_version             = try(coalesce(var.cluster_public_ingress.helm_chart_version, "4.10.0"), "4.10.0")

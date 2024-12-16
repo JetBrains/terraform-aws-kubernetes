@@ -48,7 +48,7 @@ module "node_autoscaler_required_aws_resources" {
 
 module "kube_node_autoscaler" {
   count                        = var.cluster_autoscaler_create ? 1 : 0
-  source                       = "../../../JetBrains/Terraform/terraform-aws-kubernetes/modules/feature-node-autoscaler"
+  source                       = "./modules/feature-node-autoscaler"
   helm_chart_repository        = try(coalesce(var.cluster_autoscaler.helm_chart_repository, "oci://public.registry.jetbrains.space/p/helm/library"), "oci://public.registry.jetbrains.space/p/helm/library")
   helm_chart_name              = try(coalesce(var.cluster_autoscaler.helm_chart_name, "kube-karpenter"), "kube-karpenter")
   helm_chart_version           = try(coalesce(var.cluster_autoscaler.helm_chart_version, "0.35.1"), "0.35.1")
