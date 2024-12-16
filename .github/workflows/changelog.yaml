@@ -1,0 +1,46 @@
+---
+name: Changelog
+on:
+  workflow_call:
+  workflow_run:
+    workflows: [ "Tag" ]
+    types:
+      - completed
+jobs:
+  generate_changelog:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Checkout'
+        id: checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+      - run: git fetch origin --prune --tags
+      - run: |
+          wget -O git-chglog.tar.gz https://github.com/git-chglog/git-chglog/releases/download/v0.15.2/git-chglog_0.15.2_linux_amd64.tar.gz
+          tar -xzf git-chglog.tar.gz -C /usr/local/bin/
+          chmod 755 /usr/local/bin/git-chglog
+          rm -f git-chglog.tar.gz
+          git-chglog --version
+      - name: 'Find latest tag'
+        id: latest-tag
+        uses: oprypin/find-latest-tag@v1
+        with:
+          repository: ${{ github.repository }}
+          releases-only: false
+      - name: 'List files'
+        id: ls-files
+        run: |
+          ls -a
+          git tag -l | cat
+      - name: Generate it
+        run: |
+          git-chglog -o CHANGELOG.md
+      - name: "Commit-Push it"
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@no-reply.github.com
+          git add .
+          git commit -m "ci: update the CHANGELOG.md"
+          git push

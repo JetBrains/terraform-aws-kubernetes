@@ -1,13 +1,3 @@
-locals {
-  title = "kube-minimal-example"
-  tags = {
-    DeploymentType = "Example"
-  }
-}
-
-module "eks_minimal" {
+module "example_no_user_input" {
   source = "../.."
-
-  name = local.title
-  tags = local.tags
 }

@@ -6,3 +6,9 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    labels: ["dependabot", "dependabot:ecosystem=github-actions"]
+  - package-ecosystem: "terraform"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    labels: ["dependabot", "dependabot:ecosystem=terraform"]

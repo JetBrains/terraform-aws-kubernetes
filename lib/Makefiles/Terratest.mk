@@ -16,7 +16,7 @@ is.go.installed:
 tests: is.go.installed
 > @cd tests/unit_tests
 > @rm -f go.{mod,sum}
-> @go mod init "jetbrains.space/infra"
+> @go mod init "jetbrains/terraform"
 > @go mod tidy
 > @SKIP_print_plan=true go test -v
 > @rm -fr go.{mod,sum}

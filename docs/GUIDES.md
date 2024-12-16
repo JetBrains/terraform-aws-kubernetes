@@ -1,32 +1,26 @@
 # Guides
 
-This page outlines what supporting instruments are available with the Kubernetes cluster when the `terraform-aws-kubernetes`
-Terraform module is used. This page also describes how to use the cluster services.
+This page outlines what services are available in the Kubernetes cluster and how to use them.
 
 ## Available cluster services
 
-| Cluster Service             | Deployment Namespace      | Purpose                                                             |                                     Applied Configuration Object                                      |
-|:----------------------------|:--------------------------|:--------------------------------------------------------------------|:-----------------------------------------------------------------------------------------------------:|
-| Prometheus Operator         | kube-monitoring           | Monitoring and alerting of resources within the Kubernetes cluster. |          [prometheus-operator.values.yaml](../locals.cluster_services.k8s-helm-packages.tf)           |
-| Kubereboot Kured            | kube-administrative-tools | Reboot the Kubernetes workers after AWS applied patches to them.    |         [cluster_services_kubereboot_kured](../locals.cluster_services.k8s-helm-packages.tf)          |
-| snapshot-validation-webhook | kube-system               | EBS CSI technical dependency                                        |                       Not available. Default configuration from the Helm chart.                       |
-| snapshot-controller         | kube-system               | EBS CSI technical dependency                                        |                       Not available. Default configuration from the Helm chart.                       |
-| ingress-nginx               | kube-public-ingress       | Ingress Controller to expose workloads to the Internet.             |  [public-ingress-controller.values.yaml](../files/helm-values/public-ingress-controller.values.yaml)  |
-| ingress-nginx               | kube-private-ingress      | Ingress Controller to expose workloads to the intranet.             | [private-ingress-controller.values.yaml](../files/helm-values/private-ingress-controller.values.yaml) |
-| aws-ebs-csi-driver          | kube-system               | Storage extension for Kubernetes in AWS.                            |                   [ebs-csi-driver.values.yaml](../modules/eks-extensions/locals.tf)                   |
-| grafana-promtail            | kube-monitoring           | Log collector for Grafana Loki.                                     |            [grafana-promtail.values.yaml](../locals.cluster_services.k8s-helm-packages.tf)            |
-| grafana-loki                | kube-monitoring           | Log management system.                                              |              [grafana-loki.values.yaml](../locals.cluster_services.k8s-helm-packages.tf)              |
- | aws-eks-karpenter           | kube-node-autoscaler      | Kubernetes node auto-scaler for EKS in AWS.                         |                 [aws-eks-karpenter.values.yaml](../modules/eks-extensions/locals.tf)                  |   
- | metrics-server              | kube-monitoring           | Aggregator of metrics from the Kubernetes API                       |                   [metrics-server](../locals.cluster_services.k8s-helm-packages.tf)                   |
+| Cluster Service            | Deployment Namespace | Purpose                                                                       | 
+|:---------------------------|:---------------------|:------------------------------------------------------------------------------|
+| Monitoring                 | kube-monitoring      | Monitoring and alerting of resources within the Kubernetes cluster.           |
+| Cluster metrics            | kube-monitoring      | Aggregator of metrics from the Kubernetes API.                                |
+| Logging collection         | kube-monitoring      | Log collector for Grafana Loki.                                               |
+| Logging store              | kube-monitoring      | Log management system.                                                        |
+| Host patcher               | kube-node-rebooter   | Reboot the EC2 hosts in a controller way when necessary; example: OS updates. |
+| Public Ingress controller  | kube-public-ingress  | Ingress Controller to expose workloads to the Internet. Disabled by default.  |
+| Private Ingress controller | kube-private-ingress | Ingress Controller to expose workloads to the intranet. Enabled by default.   |
+| Cluster node autoscaler.   | kube-node-autoscaler | Scale cluster computing pool just in time with Karpenter.                     |
+| Cluster descheduler        | kube-system          | Kubernetes node auto-scaler for EKS in AWS.                                   |
+
 
 ## Available storage classes
 
-In the Kubernetes cluster there are available three storage classes (KSC): `standard`, `golden`, `platinum`. 
-They are ordered by performance guarantees. The standard KSC is the cheapest class and platinum KSC most expensive and performant.
-
-Use the standard storage class (also the default one) as much as possible.
-In case the IOPS are mission critical for your application, then choose one that suits best the performance requirements
-you have from `golden` or `platinum`.
+By default, there are three storage classes: `standard`, `golden`, `platinum`. Each of which has different performance guarantees.
+The cheapest one is `standard`, while the most expensive one is `platinum`.
 
 ```
   - name: standard
@@ -62,32 +56,37 @@ you have from `golden` or `platinum`.
       encrypted: "true"
       type: io2
       allowAutoIOPSPerGBIncrease: "true"
-
 ```
 
-## Kubernetes Workers' Reboot schedule
+If these storage classes do not meet your requirements, you can disable their creation and provide your own storage classes with the option
+described in the next section: *Additional storage classes*.
 
-An agent in the Kubernetes cluster, named Kured, checks every 30min if AWS installed a patch on the Kubernetes worker nodes.
-Kured avoids weekend reboots and only restarts the nodes from Monday to Friday during office hours (9:00-17:00 Europe/Amsterdam).
+## Additional storage classes
 
-## How to
+For creating custom storage classes, use the following terraform variable: `cluster_custom_storage_classes`. The configuration
+is similar to the structure of the default storage classes.
+
+## Patching
+
+The module installs an agent in the Kubernetes cluster that reboots the worker nodes when necessary. It checks every 30min if
+there is installed a patch on the Kubernetes worker nodes. The patching is configured to actuate reboots, by default, on the following schedule:
+from Monday to Friday, office hours (9:00–17:00/Central European Time Zone).
+
+## Instructions
 
 ### Get EKS credentials
 
-#### Characteristics
+At the moment, the module assignes the IAM Role `arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy` to the entity that deploys this module.
+This is the default because it is necessary to further configure the cluster in Terraform and create a unified life cycle for cluster services.
 
-At the moment, the module allows all users within IAM to have Administrators access to the Kubernetes API.
-This is the default.
-
-To limit the administrative access, consider specifying the desired IAM roles in the following module's variable 
-`kubernetes_cluster_admin_iam_roles`.
+Use the variable `cluster_access_management` to provide access to your users in the cluster. 
 
 Given that:
 
 * `EKS_CLUSTER_NAME` is an environment variable and its value represents a valid EKS cluster name;
 * `KUBECONFIG` is an environment variable abd uts value represents a valid and existing kubectl configuration file path.
 
-The command to download the cluster credentials follow:
+Use the following command to download the cluster credentials if you are allowed:
 
 ```shell
 export EKS_CLUSTER_NAME="kube-cluster"
@@ -98,8 +97,8 @@ export KUBECONFIG="$HOME/.kube/${EKS_CLUSTER_NAME}.yaml"
 ```
 
 Note:
-find the name of the cluster through the AWS portal of the EKS service or in the value of the module's output variable `module.eks.kubernetes_api.name`.
 
+Find the name of the cluster through the AWS portal of the EKS service or in the output of the module.
 
 ### Use the public ingress controller
 
@@ -112,20 +111,20 @@ find the name of the cluster through the AWS portal of the EKS service or in the
 #### Specify the ingress as ingressClassName
 
 This is the preferable option to instruct the public Ingress Controller to publish the service outside the Kubernetes
-cluster. 
+cluster.
 
 Specify the `ingressClassName` property with `public-ingress-nginx` value,
-under the `spec` field of the Ingress object. 
+under the `spec` field of the Ingress object.
 
-  ```
-    apiVersion: networking.k8s.io/v1
-    kind: Ingress
-    metadata:
-      name: my-public-ingress
-    spec:
-      ingressClassName: public-ingress-nginx
-      ...
-  ```
+```
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: my-public-ingress
+spec:
+  ingressClassName: public-ingress-nginx
+  ...
+```
 
 #### Specify the ingress as an annotation
 
@@ -158,38 +157,38 @@ cluster.
 Specify the `ingressClassName` property with `private-ingress-nginx` value,
 under the `spec` field of the Ingress object.
 
-  ```
-    apiVersion: networking.k8s.io/v1
-    kind: Ingress
-    metadata:
-      name: my-private-ingress
-    spec:
-      ingressClassName: private-ingress-nginx
-      ...
-  ```
+```
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: my-private-ingress
+spec:
+  ingressClassName: private-ingress-nginx
+  ...
+```
 
 #### Specify the ingress as an annotation
 
 For retro compatibility reasons, you can use the `kubernetes.io/ingress.class` annotation with value `private-ingress-nginx`.
 Notice that this option is deprecated. Opt for `Specify the ingress as ingressClassName` option as soon as possible.
 
-  ```
-  ...
-  kind: Ingress
-  metadata:
-    name: my-private-ingress
-    annotations:
-      kubernetes.io/ingress.class: "private-ingress-nginx"
-  ...
-  ```
+```
+...
+kind: Ingress
+metadata:
+name: my-private-ingress
+annotations:
+  kubernetes.io/ingress.class: "private-ingress-nginx"
+...
+```
 
 ### Monitor workloads
 
-Prometheus Operator monitors every resource in the cluster as a blackbox. The monitoring system does not
-have understanding of what is inside a pod.
+Prometheus Operator is the central monitoring solution for the Kubernetes cluster created by this module.
 
-In order to monitor the pods as white boxes, you need to make sure that pods are instrumented with a Prometheus library 
-that exposes metrics in the Prometheus format.
+Any custom resource that Prometheus Operator is discovered automatically. Prometheus Operator watches for its resources
+cross-namespaces.
+
 Check out this [Prometheus Overview](https://prometheus.io/docs/introduction/overview/) for details.
 
 To get started with Prometheus Operator, reference this [user-guide](https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/user-guides/getting-started.md).
@@ -202,6 +201,9 @@ ServiceMonitors do not affect the uptime of the remote monitored pods. If annota
 are not impacted since the instrumented object is a Kubernetes Service. This monitoring object is very useful to abstract
 the remote endpoints and get an aggregated collection of time series data points.
 
+#### How to scrape the metrics from the pods
+
+ServiceMonitors are the objects that specify how a Kubernetes service can be monitored.
 
 The same can be achieved with PodMonitors. A PodMonitor specifies how a group of pods can be monitored.
 A change in the monitoring details like port, URI involves restart of the pod.
@@ -238,8 +240,6 @@ As soon as the Service is annotated, create a ServiceMonitor like the following.
     metadata:
       name: kubereboot-kured
       namespace: kube-administrative-tools
-      labels:
-        release: kube-prometheus-stack
     spec:
        endpoints:
          - honorLabels: true
@@ -257,18 +257,17 @@ As soon as the Service is annotated, create a ServiceMonitor like the following.
            app.kubernetes.io/name: kured
   ```
 
-Do not miss the label `release: kube-prometheus-stack`; without it Prometheus won't be able to discover the
-ServiceMonitor object.
-
 #### Specify alerting rules for the workload
 
-Custom alerts are possible via [Prometheus rules](https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/) objects. 
+Custom alerts are possible via [Prometheus rules](https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/) objects.
 
 Reference this [detailed example](https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/user-guides/alerting.md#deploying-prometheus-rules) for details.
 
-Do not miss the label `release: kube-prometheus-stack`; without it Prometheus won't be able to discover the
-PrometheusRule object.
+Prometheus Operator monitors at cluster level for any PrometheusRule object.
 
-## Caution
 
-* No cluster service is available outside the network area of the Kubernetes cluster.
+#### Credentials for Grafana
+
+The module generates when the module is instantiated for the first time a random password and random user for Grafana root user creds. 
+These creds are stored in the AWS Secrets Manager. The actual path to the secret is stored in the output variable [cluster_ssm_params_paths](../outputs.tf).
+

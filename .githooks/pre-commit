@@ -2,15 +2,9 @@
 
 set -xe
 
-terraform_fmt() {
-make clean
-terraform fmt --recursive ./
-}
-
-packer_fmt() {
-    packer fmt -recursive ./
+pre-commit-exec() {
+  pre-commit run --all-files
 }
 
 # __MAIN__
-terraform_fmt
-packer_fmt
+pre-commit-exec

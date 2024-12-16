@@ -28,6 +28,3 @@ Feature: EKS related general feature
 			| coredns 				|
 			| kube-proxy            |
 			| vpc-cni               |
-
-
-

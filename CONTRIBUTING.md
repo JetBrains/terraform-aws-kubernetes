@@ -12,7 +12,7 @@ This section details a list of terms that are commonly used in this guideline.
 |-----|-----------------------------|------------------------------------------------------------------|
 | T0  | Local Environment (locally) | This term defines the Contributor's workstation.                 |
 | T1  | Remote Environment (remote) | This term defines the Continuous Integration execution contenxt. |
- 
+
 ## Prerequisites
 
 ### Tools
@@ -46,7 +46,7 @@ git clone "${THIS_REPO_URL}"
 git checkout -b "${CONTRIBUTION_BRANCH_NAME}"
 ```
 
-Add your contributions and run the following Make rules: 
+Add your contributions and run the following Make rules:
 
 1. `make terraform-fmt`;
 2. `make terraform-validate`;
@@ -61,7 +61,7 @@ Make sure to keep the README.md file up to date with your changes.
 
 *Caveat*
 
-Do not update directly the README.md file. Update the content of the `.terraform-docs.yaml` file. 
+Do not directly update the README.md file. Update the content of the `.terraform-docs.yaml` file.
 
 ### Create a pull request
 
@@ -70,9 +70,3 @@ In the *pull request* provide meaningful details about your changes.
 Accompany the changes with meaningful tests in `terratest` and/or in `terraform-compliance`.
 
 Consider augmenting the `examples` folder with a nice sample that showcases your contribution.
-
-
-
-
-
-
