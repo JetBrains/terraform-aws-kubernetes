@@ -17,7 +17,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.ref }}
       - name: 'Update module usage docs and push changes back to main branch'
-        uses: terraform-docs/gh-actions@v1.1.0
+        uses: terraform-docs/gh-actions@v1.3.0
         with:
           git-commit-message: "terraform-docs: Update module usage"
           git-push: "true"
