@@ -3,12 +3,11 @@ name: TerraformDocs
 
 on:
   workflow_dispatch:
-  pull_request:
+  push:
+    branches:
+      - main
     paths:
-      - 'variables.tf'
-      - 'outputs.tf'
-      - 'versions.tf'
-      - '**/.terraform-docs.yaml'
+      - '**.tf'
 jobs:
   terraform-docs:
     runs-on: ubuntu-latest
@@ -17,7 +16,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.ref }}
-      - name: 'Update module usage docs and push any changes back to PR branch'
+      - name: 'Update module usage docs and push changes back to main branch'
         uses: terraform-docs/gh-actions@v1.1.0
         with:
           git-commit-message: "terraform-docs: Update module usage"
