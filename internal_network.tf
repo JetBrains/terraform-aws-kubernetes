@@ -45,7 +45,7 @@ locals {
 
 module "internal_network" {
   source  = "terraform-aws-modules/vpc/aws"
-  version = "5.7.0"
+  version = "5.17.0"
 
   create_vpc            = var.cluster_network_type == "internal"
   name                  = local.network_prefix_name
@@ -207,7 +207,7 @@ module "internal_network" {
 
 module "internal_network_vpc_endpoints" {
   source  = "terraform-aws-modules/vpc/aws//modules/vpc-endpoints"
-  version = "5.7.0"
+  version = "5.17.0"
 
   create             = try(var.cluster_network_type == "internal" && var.cluster_network_internal_vpc_endpoints.enabled, false)
   endpoints          = try(var.cluster_network_internal_vpc_endpoints.services, {})
