@@ -2,6 +2,12 @@
 ## [Unreleased]
 
 
+<a name="v3.1.0"></a>
+## [v3.1.0] - 2025-02-10
+### Bug Fixes
+- **access-management:** order of the default policy #minor ([#30](/issues/30))
+
+
 <a name="v3.0.0"></a>
 ## [v3.0.0] - 2024-12-16
 ### Code Refactoring
@@ -62,7 +68,8 @@
 - first commit
 
 
-[Unreleased]: /compare/v3.0.0...HEAD
+[Unreleased]: /compare/v3.1.0...HEAD
+[v3.1.0]: /compare/v3.0.0...v3.1.0
 [v3.0.0]: /compare/v2.5.0...v3.0.0
 [v2.5.0]: /compare/v2.4.0...v2.5.0
 [v2.4.0]: /compare/v2.2.0...v2.4.0
