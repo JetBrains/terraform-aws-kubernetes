@@ -67,7 +67,7 @@ module "kubernetes" {
   cluster_tags                               = try(coalesce(var.cluster_tags, {}), {})
   create_cluster_primary_security_group_tags = try(coalesce(var.cluster_security_group.create_primary_security_group_tags, true), true)
   cluster_timeouts                           = try(coalesce(var.cluster_timeouts, {}), {})
-  access_entries = try(merge(coalesce(var.cluster_access_management.list, {}), {
+  access_entries = try(coalesce(var.cluster_access_management.list, {
     # The below code block is a default access management configuration that relies fully on the new API for access entries and access policies.
     # It is necessary for deploying Kubernetes resources with the Kubernetes and Helm provider.
     aws_account_admins = {
@@ -82,7 +82,7 @@ module "kubernetes" {
         }
       }
     }
-  }), {})
+  }))
   enable_cluster_creator_admin_permissions     = try(coalesce(var.cluster_access_management.enable_cluster_creator_admin_permissions, false), false)
   create_kms_key                               = try(coalesce(var.cluster_kms.enabled, true), true)
   kms_key_description                          = try(coalesce(var.cluster_kms.key_description, null), null)

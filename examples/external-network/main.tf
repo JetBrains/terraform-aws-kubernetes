@@ -12,4 +12,5 @@ module "example_with_external_network_configuration" {
   cluster_network_external_vpc_id                   = "vpc-0a1b2c3d4e5f67890"
   cluster_network_external_node_subnet_ids          = ["subnet-0a1b2c3d4e5f67891", "subnet-0a1b2c3d4e5f67892"]
   cluster_network_external_control_plane_subnet_ids = ["subnet-0a1b2c3d4e5f67890", "subnet-0a1b2c3d4e5f67891"]
+  cluster_autoscaler_subnet_selector                = "1"
 }
