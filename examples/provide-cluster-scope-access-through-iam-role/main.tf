@@ -1,6 +1,6 @@
 module "cluster_scoped_access_entry_through_iam" {
-  source = "../.."
-
+  source                             = "../.."
+  cluster_autoscaler_subnet_selector = "1"
   cluster_access_management = {
     list = {
       admins = {
@@ -9,7 +9,8 @@ module "cluster_scoped_access_entry_through_iam" {
           admins = {
             policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
             access_scope = {
-              type = "cluster"
+              type       = "cluster"
+              namespaces = []
             }
           }
         }

@@ -826,7 +826,7 @@ variable "cluster_access_management" {
   description = "The access management configuration for the Kubernetes cluster"
   default = {
     enable_cluster_creator_admin_permissions = false
-    list                                     = {}
+    list                                     = null
   }
 }
 

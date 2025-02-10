@@ -2,6 +2,7 @@ module "example_full_internal_network" {
   source = "../.."
 
   prefix                                                 = "full-nw"
+  cluster_autoscaler_subnet_selector                     = "1"
   cluster_network_type                                   = "internal"
   cluster_network_internal_vpc_cidr                      = "10.0.0.0/16"
   cluster_network_internal_vpc_nat_gateway_type          = "one_nat_gateway_per_az"
