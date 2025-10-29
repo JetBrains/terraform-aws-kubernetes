@@ -1,7 +1,7 @@
 
 module "kubernetes_ebs_csi_irsa_role" {
   source                = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
-  version               = "5.37.1"
+  version               = "5.54.0"
   role_name             = "${var.prefix}-ebs-csi"
   attach_ebs_csi_policy = true
 
@@ -15,7 +15,7 @@ module "kubernetes_ebs_csi_irsa_role" {
 
 module "kubernetes_efs_csi_irsa_role" {
   source                = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
-  version               = "5.37.1"
+  version               = "5.54.0"
   role_name             = "${var.prefix}-efs-csi"
   attach_efs_csi_policy = true
 
