@@ -2,6 +2,9 @@
 ## [Unreleased]
 
 
+<a name="v3.3.0"></a>
+## [v3.3.0] - 2025-10-29
+
 <a name="v3.2.0"></a>
 ## [v3.2.0] - 2025-10-29
 
@@ -71,7 +74,8 @@
 - first commit
 
 
-[Unreleased]: /compare/v3.2.0...HEAD
+[Unreleased]: /compare/v3.3.0...HEAD
+[v3.3.0]: /compare/v3.2.0...v3.3.0
 [v3.2.0]: /compare/v3.1.0...v3.2.0
 [v3.1.0]: /compare/v3.0.0...v3.1.0
 [v3.0.0]: /compare/v2.5.0...v3.0.0
