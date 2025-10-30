@@ -34,7 +34,7 @@ locals {
 
 module "kubernetes" {
   source  = "terraform-aws-modules/eks/aws"
-  version = "20.8.4"
+  version = "20.34.0"
 
   create = try(coalesce(var.cluster_enabled, true), true)
   tags = try(merge(coalesce(var.tags, {}), {
