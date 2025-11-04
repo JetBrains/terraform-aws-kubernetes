@@ -2,6 +2,13 @@
 ## [Unreleased]
 
 
+<a name="v3.5.0"></a>
+## [v3.5.0] - 2025-11-04
+### Features
+- upgrade Kubernetes API to version 1.34 ([#45](/issues/45))
+- **github:** [issues] add new templates ([#37](/issues/37))
+
+
 <a name="v3.4.0"></a>
 ## [v3.4.0] - 2025-10-30
 
@@ -77,7 +84,8 @@
 - first commit
 
 
-[Unreleased]: /compare/v3.4.0...HEAD
+[Unreleased]: /compare/v3.5.0...HEAD
+[v3.5.0]: /compare/v3.4.0...v3.5.0
 [v3.4.0]: /compare/v3.3.0...v3.4.0
 [v3.3.0]: /compare/v3.2.0...v3.3.0
 [v3.2.0]: /compare/v3.1.0...v3.2.0
