@@ -44,7 +44,7 @@ terraform-sec:
 > @docker run --rm -it -v "${PWD}:/src" aquasec/tfsec:v0.62.0 /src
 
 # It generates the README.md file. It depends on the rules in the specification of the rule.
-terraform-docs: clean
+terraform-docs:
 > @echo "[info] Formatting"
 > @terraform fmt -recursive
 > @echo "[info] Generating README.md."

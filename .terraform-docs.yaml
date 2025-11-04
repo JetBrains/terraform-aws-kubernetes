@@ -77,7 +77,9 @@ content: |-
   {{ .Resources }}
   {{ .Inputs }}
   {{ .Outputs }}
-
+  
+  For detailed documentation about the structure and contents of each output, refer to the [Module Outputs](./docs/GUIDES.md#module-outputs)
+  section in the guides.
 output:
   file: "README.md"
   mode: replace
