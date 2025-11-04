@@ -21,7 +21,7 @@ The instruments used to develop and maintain this Module are the following:
 
 | Id  | Tool                 |
 |-----|----------------------|
-| I0  | Docker               |                
+| I0  | Docker               |
 | I1  | Make                 |
 | I2  | Terraform            |
 | I3  | AWS CLI version 2    |
