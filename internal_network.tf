@@ -45,7 +45,7 @@ locals {
 
 module "internal_network" {
   source  = "terraform-aws-modules/vpc/aws"
-  version = "5.19.0"
+  version = "5.20.0"
 
   create_vpc            = var.cluster_network_type == "internal"
   name                  = local.network_prefix_name

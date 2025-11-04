@@ -651,7 +651,7 @@ variable "cluster_enabled" {
 variable "cluster_version" {
   type        = string
   description = "The version of the Kubernetes cluster"
-  default     = "1.29"
+  default     = "1.34"
 }
 
 variable "cluster_authentication_mode" {
