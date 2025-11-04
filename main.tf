@@ -34,7 +34,7 @@ locals {
 
 module "kubernetes" {
   source  = "terraform-aws-modules/eks/aws"
-  version = "20.34.0"
+  version = "20.37.2"
 
   create = try(coalesce(var.cluster_enabled, true), true)
   tags = try(merge(coalesce(var.tags, {}), {
@@ -42,7 +42,7 @@ module "kubernetes" {
   }), {})
   prefix_separator                      = "-"
   cluster_name                          = var.prefix
-  cluster_version                       = try(coalesce(var.cluster_version, "1.32"), "1.32")
+  cluster_version                       = try(coalesce(var.cluster_version, "1.34"), "1.34")
   cluster_enabled_log_types             = try(coalesce(var.cluster_cloudwatch_logging.log_types, ["audit", "api", "authenticator"]), ["audit", "api", "authenticator"])
   authentication_mode                   = try(coalesce(var.cluster_authentication_mode, "API_AND_CONFIG_MAP"), "API_AND_CONFIG_MAP")
   cluster_additional_security_group_ids = try(coalesce(var.cluster_vpc_config.additional_security_group_ids, []), [])

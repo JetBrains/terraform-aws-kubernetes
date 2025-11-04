@@ -84,7 +84,7 @@ spec:
     role: "${module.kubernetes.eks_managed_node_groups["main"].iam_role_name}"
     subnetSelectorTerms:
         - tags:
-            karpenter.sh/discovery: "${try(var.cluster_autoscaler_subnet_selector, module.kubernetes.cluster_name)}"
+            karpenter.sh/discovery: "${coalesce(var.cluster_autoscaler_subnet_selector, module.kubernetes.cluster_name)}"
     securityGroupSelectorTerms:
         - tags:
             karpenter.sh/discovery: "${module.kubernetes.cluster_name}"
