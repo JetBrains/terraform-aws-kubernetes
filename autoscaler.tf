@@ -1,6 +1,6 @@
 module "node_autoscaler_required_aws_resources" {
   source                            = "terraform-aws-modules/eks/aws//modules/karpenter"
-  version                           = "20.34.0"
+  version                           = "21.9.0"
   create                            = var.cluster_autoscaler_create
   access_entry_type                 = "EC2_LINUX"
   ami_id_ssm_parameter_arns         = []
