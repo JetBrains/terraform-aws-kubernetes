@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 'Checkout'
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: 'Configure Terraform'
         uses: hashicorp/setup-terraform@v3
       - name: 'Terraform Format'
@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 'Checkout'
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: 'Configure Terraform'
         uses: hashicorp/setup-terraform@v3
       - name: 'Terraform Init'
@@ -34,7 +34,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 'Checkout'
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: 'Terraform security scan'
         uses: aquasecurity/tfsec-action@v1.0.3
