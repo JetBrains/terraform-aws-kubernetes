@@ -80,7 +80,7 @@ kind: EC2NodeClass
 metadata:
   name: default
 spec:
-    amiFamily: AL2
+    amiFamily: AL2023
     role: "${module.kubernetes.eks_managed_node_groups["main"].iam_role_name}"
     subnetSelectorTerms:
         - tags:
