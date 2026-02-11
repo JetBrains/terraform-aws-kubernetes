@@ -2,6 +2,12 @@
 ## [Unreleased]
 
 
+<a name="v3.6.0"></a>
+## [v3.6.0] - 2026-02-11
+### Bug Fixes
+- update amiFamily from AL2 to AL2023 in autoscaler configuration ([#58](/issues/58))
+
+
 <a name="v3.5.0"></a>
 ## [v3.5.0] - 2025-11-04
 ### Features
@@ -84,7 +90,8 @@
 - first commit
 
 
-[Unreleased]: /compare/v3.5.0...HEAD
+[Unreleased]: /compare/v3.6.0...HEAD
+[v3.6.0]: /compare/v3.5.0...v3.6.0
 [v3.5.0]: /compare/v3.4.0...v3.5.0
 [v3.4.0]: /compare/v3.3.0...v3.4.0
 [v3.3.0]: /compare/v3.2.0...v3.3.0
