@@ -1477,9 +1477,9 @@ variable "cluster_autoscaler" {
   })
   description = "The cluster autoscaler configuration for the Kubernetes cluster"
   default = {
-    helm_chart_repository        = "oci://public.registry.jetbrains.space/p/helm/library"
+    helm_chart_repository        = "oci://registry.jetbrains.team/p/helm/library"
     helm_chart_repository_config = null
-    helm_chart_version           = "0.35.1"
+    helm_chart_version           = "1.10.0"
     helm_chart_name              = "kube-karpenter"
     helm_chart_params            = []
     helm_chart_secrets           = []
@@ -1489,7 +1489,7 @@ variable "cluster_autoscaler" {
 
 variable "cluster_autoscaler_subnet_selector" {
   type        = string
-  description = "The subnet selector for the cluster autoscaler"
+  description = "Value for karpenter.sh/discovery on node subnets and EC2NodeClass subnetSelectorTerms; defaults to var.prefix when null"
   default     = null
 }
 

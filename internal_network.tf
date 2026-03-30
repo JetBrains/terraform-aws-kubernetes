@@ -9,8 +9,9 @@ locals {
   }
   private_subnets = {
     tags = {
-      "Purpose"                = "Kubernetes internal traffic address pool"
-      "karpenter.sh/discovery" = try(var.cluster_autoscaler_subnet_selector, var.prefix)
+      "Purpose" = "Kubernetes internal traffic address pool"
+      # Must match autoscaler EC2NodeClass subnetSelectorTerms; use coalesce (try(null, x) stays null).
+      "karpenter.sh/discovery" = coalesce(var.cluster_autoscaler_subnet_selector, var.prefix)
     }
   }
   intranet_subnets = {
