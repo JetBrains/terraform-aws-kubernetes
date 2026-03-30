@@ -93,6 +93,10 @@ output "cluster_autoscaler_resources" {
     default = {
       ec2_node_class = var.cluster_autoscaler_create ? kubectl_manifest.default_ec2_node_class[0].name : null
       node_pool      = var.cluster_autoscaler_create ? kubectl_manifest.default_node_pool[0].name : null
+      flowschemas = var.cluster_autoscaler_create ? {
+        leader_election = kubectl_manifest.karpenter_flowschema_leader_election[0].name
+        workload        = kubectl_manifest.karpenter_flowschema_workload[0].name
+      } : null
     }
   }
 }

@@ -11,10 +11,10 @@ spec:
       prometheus.io/path: "/metrics"
       prometheus.io/port: "8080"
   configuration:
-    startTime: "10:00"
-    endTime: "17:00"
+    startTime: "00:00"
+    endTime: "23:59"
     timeZone: "Europe/Amsterdam"
-    period: "30m0s"
+    period: "5m0s"
     rebootDays: [mo,tu,we,th,fr]
     annotateNodes: true
 VALUES

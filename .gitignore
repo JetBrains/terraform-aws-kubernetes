@@ -36,6 +36,7 @@ Temporary Items
 *.tfstate
 *.tfstate.*
 **/*.tfplan
+**/state.out.json
 # Crash log files
 crash.log
 

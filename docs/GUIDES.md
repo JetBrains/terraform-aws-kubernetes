@@ -14,7 +14,7 @@ This page outlines what services are available in the Kubernetes cluster and how
 | Public Ingress controller  | kube-public-ingress  | Ingress Controller to expose workloads to the Internet. Disabled by default.  |
 | Private Ingress controller | kube-private-ingress | Ingress Controller to expose workloads to the intranet. Enabled by default.   |
 | Cluster node autoscaler.   | kube-node-autoscaler | Scale cluster computing pool just in time with Karpenter.                     |
-| Cluster descheduler        | kube-system          | Kubernetes node auto-scaler for EKS in AWS.                                   |
+| Cluster descheduler        | kube-system          | Evicts pods to rebalance nodes (Kubernetes descheduler).                      |
 
 
 ## Available storage classes
@@ -68,9 +68,34 @@ is similar to the structure of the default storage classes.
 
 ## Patching
 
-The module installs an agent in the Kubernetes cluster that reboots the worker nodes when necessary. It checks every 30min if
-there is installed a patch on the Kubernetes worker nodes. The patching is configured to actuate reboots, by default, on the following schedule:
-from Monday to Friday, office hours (9:00–17:00/Central European Time Zone).
+The module installs an agent in the Kubernetes cluster that reboots worker nodes when a reboot is needed. By default it
+checks every 5 minutes. Reboots run on weekdays only, in the window 00:00–23:59 (`Europe/Amsterdam`). Override
+`cluster_node_patcher.helm_chart_values` if you need a different schedule or window.
+
+## Node autoscaler (Karpenter)
+
+When `cluster_autoscaler_create` is true, the module deploys Karpenter in `kube-node-autoscaler` (chart defaults use
+that namespace). Compared to earlier releases, this branch:
+
+- **Karpenter 1.x**: Default chart version is `1.10.0` (wrapper chart `kube-karpenter`). CRDs use `karpenter.sh/v1` and
+  `karpenter.k8s.aws/v1` for the bundled `NodePool` and `EC2NodeClass` manifests.
+- **Helm OCI registry**: Default `cluster_autoscaler.helm_chart_repository` is
+  `oci://registry.jetbrains.team/p/helm/library` (update overrides if you still point at an old host).
+- **API fairness**: Two `FlowSchema` objects map the Karpenter service account to `leader-election` and `workload-high`
+  priority levels so the controller is not throttled like a normal namespaced workload. Names match
+  `kubectl_manifest.karpenter_flowschema_*` and appear under output `cluster_autoscaler_resources.default.flowschemas`.
+- **IAM**: The EKS Karpenter submodule uses `enable_v1_permissions` for the v1 controller policy. An extra statement
+  allows `iam:ListInstanceProfiles` for instance profile garbage collection (Karpenter 1.7+). IRSA is bound to
+  `kube-node-autoscaler:karpenter`.
+- **Subnets**: Private node subnets get `karpenter.sh/discovery` from `coalesce(cluster_autoscaler_subnet_selector,
+  prefix)`, matching the default `EC2NodeClass` subnet selector. Set `cluster_autoscaler_subnet_selector` when the tag
+  value must differ from `var.prefix`.
+- **Default manifests**: The default `EC2NodeClass` uses `amiSelectorTerms` with `al2023@latest`, `kubelet.maxPods: 25`,
+  and explicit root `blockDeviceMappings` (including `deviceName`). The default `NodePool` uses
+  `karpenter.k8s.aws/instance-local-nvme` for local disk size, `WhenEmptyOrUnderutilized` consolidation with
+  `consolidateAfter: 0s`, and spot plus on-demand capacity types.
+
+Override chart version, values, or the kubectl manifests as needed for your cluster.
 
 ## Instructions
 
@@ -393,6 +418,8 @@ Autoscaler resource names for use by cluster users. Contains:
 - **`default`**: Default autoscaler resources:
   - `ec2_node_class`: Name of the default EC2NodeClass resource
   - `node_pool`: Name of the default NodePool resource
+  - `flowschemas`: When the autoscaler is enabled, names of the `FlowSchema` objects for Karpenter API priority
+    (`leader_election`, `workload`); `null` when the autoscaler is disabled
 
 These can be referenced in Kubernetes manifests to use the default autoscaler configuration.
 

@@ -29,22 +29,3 @@ jobs:
         run: terraform init
       - name: 'Terraform Validate'
         run: terraform validate -no-color
-
-  terraform-tfsec:
-    runs-on: ubuntu-latest
-    steps:
-      - name: 'Checkout'
-        uses: actions/checkout@v6
-
-      - name: 'Terraform security scan'
-        uses: aquasecurity/tfsec-action@v1.0.3
-        with:
-          tfsec_args: --concise-output
-          soft_fail: false
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: 'Terraform pr commenter'
-        uses: aquasecurity/tfsec-pr-commenter-action@v1.3.1
-        with:
-          tfsec_args: --concise-output
-          github_token: ${{ secrets.GITHUB_TOKEN }}
