@@ -13,10 +13,10 @@ module "node_autoscaler_required_aws_resources" {
   ami_id_ssm_parameter_arns = []
   cluster_ip_family         = "ipv4"
   cluster_name              = module.kubernetes.cluster_name
-  create_access_entry       = false
+  create_access_entry       = true
   create_iam_role           = true
   create_instance_profile   = false
-  create_node_iam_role      = false
+  create_node_iam_role      = true
   # Karpenter v1 controller policy (chart 1.x); default module policy targets v0.33–v0.37.
   enable_v1_permissions             = true
   enable_irsa                       = true
@@ -48,9 +48,9 @@ module "node_autoscaler_required_aws_resources" {
   node_iam_role_additional_policies = {
     AmazonSSMManagedInstanceCore = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
   }
-  node_iam_role_arn                       = module.kubernetes.eks_managed_node_groups["main"].iam_role_arn
   node_iam_role_attach_cni_policy         = true
-  node_iam_role_description               = null
+  node_iam_role_description               = "Karpenter node IAM role for ${var.prefix} Kubernetes cluster"
+  node_iam_role_name                      = "EKS${upper(var.prefix)}KarpenterNode"
   node_iam_role_max_session_duration      = null
   node_iam_role_path                      = "/eks/cluster/${var.prefix}/"
   node_iam_role_permissions_boundary      = null
@@ -176,7 +176,7 @@ spec:
   amiSelectorTerms:
     - alias: al2023@latest
   amiFamily: AL2023
-  role: ${module.kubernetes.eks_managed_node_groups["main"].iam_role_name}
+  role: ${module.node_autoscaler_required_aws_resources.node_iam_role_name}
   kubelet:
     maxPods: 25
   subnetSelectorTerms:
@@ -233,6 +233,15 @@ spec:
           values:
             - spot
             - on-demand
+        - key: kubernetes.io/os
+          operator: In
+          values:
+            - linux
+        - key: eks.amazonaws.com/capacityType
+          operator: In
+          values:
+            - SPOT
+            - ON_DEMAND
   disruption:
     consolidateAfter: 0s
     consolidationPolicy: WhenEmptyOrUnderutilized
