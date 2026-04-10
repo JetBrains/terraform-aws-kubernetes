@@ -963,6 +963,10 @@ variable "cluster_compute_pool_aws_managed" {
     groups   = any
   })
   description = "The AWS managed compute pool configuration for the Kubernetes cluster"
+  validation {
+    condition     = contains(keys(var.cluster_compute_pool_aws_managed.groups), "main")
+    error_message = "cluster_compute_pool_aws_managed.groups must contain a \"main\" key. autoscaler.tf hardcodes eks_managed_node_groups[\"main\"] as the source of the Karpenter node IAM role."
+  }
   default = {
     defaults = {}
     groups = {
