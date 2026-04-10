@@ -2,6 +2,12 @@
 ## [Unreleased]
 
 
+<a name="v3.8.0"></a>
+## [v3.8.0] - 2026-04-10
+### Bug Fixes
+- QD-14326 update wrong public access CIDR field name and add NodePool OS requirements
+
+
 <a name="v3.7.0"></a>
 ## [v3.7.0] - 2026-03-30
 ### Features
@@ -96,7 +102,8 @@
 - first commit
 
 
-[Unreleased]: /compare/v3.7.0...HEAD
+[Unreleased]: /compare/v3.8.0...HEAD
+[v3.8.0]: /compare/v3.7.0...v3.8.0
 [v3.7.0]: /compare/v3.6.0...v3.7.0
 [v3.6.0]: /compare/v3.5.0...v3.6.0
 [v3.5.0]: /compare/v3.4.0...v3.5.0
