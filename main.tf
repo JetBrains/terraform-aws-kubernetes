@@ -51,7 +51,7 @@ module "kubernetes" {
   subnet_ids                            = try(coalesce(var.cluster_network_external_node_subnet_ids, null), module.internal_network.private_subnets, [])
   cluster_endpoint_private_access       = try(coalesce(var.cluster_vpc_config.expose_api_access_on_intranet, true), true)
   cluster_endpoint_public_access        = try(coalesce(var.cluster_vpc_config.expose_api_access_on_internet, true), true)
-  cluster_endpoint_public_access_cidrs  = try(coalesce(var.cluster_vpc_config.accept_api_requests_from_cidr_blocks, ["0.0.0.0/0"]), ["0.0.0.0/0"])
+  cluster_endpoint_public_access_cidrs  = try(coalesce(var.cluster_vpc_config.endpoint_public_access_allow_from_cidrs, ["0.0.0.0/0"]), ["0.0.0.0/0"])
   cluster_ip_family                     = try(coalesce(var.cluster_service_network_config.ip_family, "ipv4"), "ipv4")
   cluster_service_ipv4_cidr             = try(coalesce(var.cluster_service_network_config.service_ipv4_cidr, null), null)
   cluster_service_ipv6_cidr             = try(coalesce(var.cluster_service_network_config.service_ipv6_cidr, null), null)

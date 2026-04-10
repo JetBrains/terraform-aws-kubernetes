@@ -233,6 +233,15 @@ spec:
           values:
             - spot
             - on-demand
+        - key: kubernetes.io/os
+          operator: In
+          values:
+            - linux
+        - key: eks.amazonaws.com/capacityType
+          operator: In
+          values:
+            - SPOT
+            - ON_DEMAND
   disruption:
     consolidateAfter: 0s
     consolidationPolicy: WhenEmptyOrUnderutilized
