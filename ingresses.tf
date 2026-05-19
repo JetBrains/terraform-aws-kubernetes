@@ -275,7 +275,7 @@ VALUES
 module "cluster_public_ingress_controller" {
   count                                  = var.cluster_public_ingress_create ? 1 : 0
   source                                 = "./modules/template-ingress"
-  ingress_helm_chart_repository          = try(coalesce(var.cluster_public_ingress.helm_chart_repository, "oci://public.registry.jetbrains.space/p/helm/library"), "oci://public.registry.jetbrains.space/p/helm/library")
+  ingress_helm_chart_repository          = try(coalesce(var.cluster_public_ingress.helm_chart_repository, "oci://registry.jetbrains.team/p/helm/library"), "oci://registry.jetbrains.team/p/helm/library")
   ingress_helm_chart_repository_config   = try(coalesce(var.cluster_public_ingress.helm_chart_repository_config, null), null)
   ingress_helm_chart_version             = try(coalesce(var.cluster_public_ingress.helm_chart_version, "4.10.0"), "4.10.0")
   ingress_helm_chart_name                = try(coalesce(var.cluster_public_ingress.helm_chart_name, "kube-ingress-nginx"), "kube-ingress-nginx")
@@ -290,7 +290,7 @@ module "cluster_public_ingress_controller" {
 module "cluster_private_ingress_controller" {
   count                                  = var.cluster_private_ingress_create ? 1 : 0
   source                                 = "./modules/template-ingress"
-  ingress_helm_chart_repository          = try(coalesce(var.cluster_private_ingress.helm_chart_repository, "oci://public.registry.jetbrains.space/p/helm/library"), "oci://public.registry.jetbrains.space/p/helm/library")
+  ingress_helm_chart_repository          = try(coalesce(var.cluster_private_ingress.helm_chart_repository, "oci://registry.jetbrains.team/p/helm/library"), "oci://registry.jetbrains.team/p/helm/library")
   ingress_helm_chart_repository_config   = try(coalesce(var.cluster_private_ingress.helm_chart_repository_config, null), null)
   ingress_helm_chart_version             = try(coalesce(var.cluster_private_ingress.helm_chart_version, "4.10.0"), "4.10.0")
   ingress_helm_chart_name                = try(coalesce(var.cluster_private_ingress.helm_chart_name, "kube-ingress-nginx"), "kube-ingress-nginx")

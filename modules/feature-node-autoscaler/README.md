@@ -1,7 +1,7 @@
 <!-- BEGIN_TF_DOCS -->
 # terraform-feature-node-autoscaler
 
-This module deploys the Karpenter Helm chart into a Kubernetes cluster. 
+This module deploys the Karpenter Helm chart into a Kubernetes cluster.
 
 ## Requirements
 
@@ -22,7 +22,7 @@ No resources.
 | <a name="input_helm_chart_name"></a> [helm\_chart\_name](#input\_helm\_chart\_name) | The Helm chart application name. | `string` | `"kube-karpenter"` | no |
 | <a name="input_helm_chart_namespace"></a> [helm\_chart\_namespace](#input\_helm\_chart\_namespace) | The namespace to install the Helm chart. | `string` | `"kube-node-autoscaler"` | no |
 | <a name="input_helm_chart_params"></a> [helm\_chart\_params](#input\_helm\_chart\_params) | The Helm chart parameters. | <pre>list(object({<br/>    name  = string<br/>    value = any<br/>  }))</pre> | `[]` | no |
-| <a name="input_helm_chart_repository"></a> [helm\_chart\_repository](#input\_helm\_chart\_repository) | The Helm chart repository. | `string` | `"oci://public.registry.jetbrains.space/p/helm/library"` | no |
+| <a name="input_helm_chart_repository"></a> [helm\_chart\_repository](#input\_helm\_chart\_repository) | The Helm chart repository. | `string` | `"oci://registry.jetbrains.team/p/helm/library"` | no |
 | <a name="input_helm_chart_repository_config"></a> [helm\_chart\_repository\_config](#input\_helm\_chart\_repository\_config) | The Helm chart repository configuration. | <pre>object({<br/>    repository_key_file  = optional(string)<br/>    repository_cert_file = optional(string)<br/>    repository_ca_file   = optional(string)<br/>    repository_username  = optional(string)<br/>    repository_password  = optional(string)<br/>  })</pre> | `null` | no |
 | <a name="input_helm_chart_secrets"></a> [helm\_chart\_secrets](#input\_helm\_chart\_secrets) | The Helm chart secrets. | <pre>list(object({<br/>    name  = string<br/>    value = any<br/>  }))</pre> | `[]` | no |
 | <a name="input_helm_chart_values"></a> [helm\_chart\_values](#input\_helm\_chart\_values) | The Helm chart values. | `any` | `null` | no |

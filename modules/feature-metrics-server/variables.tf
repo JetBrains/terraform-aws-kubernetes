@@ -1,7 +1,7 @@
 variable "cluster_metrics_server_helm_chart_repository" {
   description = "The URL of the chart to use for the cluster metrics server"
   type        = string
-  default     = "oci://public.registry.jetbrains.space/p/helm/library"
+  default     = "oci://registry.jetbrains.team/p/helm/library"
 }
 
 variable "cluster_metrics_server_helm_chart_repository_config" {

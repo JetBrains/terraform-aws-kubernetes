@@ -133,7 +133,7 @@ locals {
 module "cluster_monitoring" {
   count                                             = var.cluster_monitoring_create ? 1 : 0
   source                                            = "./modules/feature-monitoring-metrics"
-  cluster_monitoring_helm_chart_repository          = try(coalesce(var.cluster_monitoring.helm_chart_repository, "oci://public.registry.jetbrains.space/p/helm/library"), "oci://public.registry.jetbrains.space/p/helm/library")
+  cluster_monitoring_helm_chart_repository          = try(coalesce(var.cluster_monitoring.helm_chart_repository, "oci://registry.jetbrains.team/p/helm/library"), "oci://registry.jetbrains.team/p/helm/library")
   cluster_monitoring_helm_chart_repository_config   = try(coalesce(var.cluster_monitoring.helm_chart_repository_config, null), null)
   cluster_monitoring_helm_chart_version             = try(coalesce(var.cluster_monitoring.helm_chart_version, "56.21.1"), "56.21.1")
   cluster_monitoring_helm_chart_name                = try(coalesce(var.cluster_monitoring.helm_chart_name, "kube-prometheus-operator"), "kube-prometheus-operator")

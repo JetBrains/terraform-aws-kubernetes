@@ -1,7 +1,7 @@
 variable "cluster_logging_collector_helm_chart_repository" {
   description = "The URL of the chart to use for the cluster logging service"
   type        = string
-  default     = "oci://public.registry.jetbrains.space/p/helm/library"
+  default     = "oci://registry.jetbrains.team/p/helm/library"
 }
 
 variable "cluster_logging_collector_helm_chart_repository_config" {
