@@ -12,6 +12,8 @@ spec:
       default: "false"
       controllerValue: "k8s.io/public-ingress-nginx"
     ingressClass: public-ingress-nginx
+    replicaCount: 3
+    minAvailable: 3
     extraArgs: {}
     extraEnvs: []
     affinity:
@@ -50,7 +52,7 @@ spec:
         memory: 2048Mi
     autoscaling:
       enabled: "false"
-      minReplicas: 1
+      minReplicas: 3
       maxReplicas: 7
       targetCPUUtilizationPercentage: 71
       targetMemoryUtilizationPercentage: 71
@@ -147,6 +149,8 @@ spec:
       default: "true"
       controllerValue: "k8s.io/private-ingress-nginx"
     ingressClass: private-ingress-nginx
+    replicaCount: 3
+    minAvailable: 3
     extraArgs: {}
     extraEnvs: []
     affinity:
@@ -185,7 +189,7 @@ spec:
         memory: 2048Mi
     autoscaling:
       enabled: "false"
-      minReplicas: 1
+      minReplicas: 3
       maxReplicas: 7
       targetCPUUtilizationPercentage: 71
       targetMemoryUtilizationPercentage: 71
