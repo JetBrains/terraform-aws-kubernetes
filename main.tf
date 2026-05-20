@@ -37,9 +37,9 @@ module "kubernetes" {
   version = "20.37.2"
 
   create = try(coalesce(var.cluster_enabled, true), true)
-  tags = try(merge(coalesce(var.tags, {}), {
-    "karpenter.sh/discovery" = var.prefix
-  }), {})
+  # Do not add karpenter.sh/discovery to module tags: create_cluster_primary_security_group_tags
+  # copies var.tags onto eks-cluster-sg, and Karpenter would attach both cluster and node SGs.
+  tags                                  = try(coalesce(var.tags, {}), {})
   prefix_separator                      = "-"
   cluster_name                          = var.prefix
   cluster_version                       = try(coalesce(var.cluster_version, "1.34"), "1.34")
@@ -65,7 +65,7 @@ module "kubernetes" {
   })
   attach_cluster_encryption_policy           = try(coalesce(var.cluster_encryption_policy.attach_default, true), true)
   cluster_tags                               = try(coalesce(var.cluster_tags, {}), {})
-  create_cluster_primary_security_group_tags = try(coalesce(var.cluster_security_group.create_primary_security_group_tags, true), true)
+  create_cluster_primary_security_group_tags = try(coalesce(var.cluster_security_group.create_primary_security_group_tags, false), false)
   cluster_timeouts                           = try(coalesce(var.cluster_timeouts, {}), {})
   access_entries = try(coalesce(var.cluster_access_management.list, {
     # The below code block is a default access management configuration that relies fully on the new API for access entries and access policies.
@@ -149,4 +149,3 @@ module "kubernetes" {
   eks_managed_node_groups                   = try(coalesce(var.cluster_compute_pool_aws_managed.groups, {}), {})
   eks_managed_node_group_defaults           = try(coalesce(var.cluster_compute_pool_aws_managed.defaults, {}), {})
 }
-

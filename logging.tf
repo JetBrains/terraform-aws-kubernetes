@@ -36,9 +36,15 @@ spec:
       reject_old_samples: true
       reject_old_samples_max_age: 168h
       max_cache_freshness_per_query: 10m
-      split_queries_by_interval: 1h
+      # Wider splits reduce sub-query fan-out from multi-panel Grafana dashboards.
+      split_queries_by_interval: 24h
+      max_query_parallelism: 32
       retention_period: 168h
       max_query_lookback: 168h
+    query_scheduler:
+      max_outstanding_requests_per_tenant: 4096
+    frontend:
+      max_outstanding_per_tenant: 4096
     compactor:
       working_directory: /var/loki/compactor
       compaction_interval: 10m
@@ -159,6 +165,11 @@ spec:
 
       {{- with .Values.loki.query_scheduler }}
       query_scheduler:
+        {{- tpl (. | toYaml) $ | nindent 4 }}
+      {{- end }}
+
+      {{- with .Values.loki.frontend }}
+      frontend:
         {{- tpl (. | toYaml) $ | nindent 4 }}
       {{- end }}
 

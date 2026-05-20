@@ -129,6 +129,8 @@ spec:
       configMapKey: ""
     service:
       enabled: "true"
+      annotations:
+        service.beta.kubernetes.io/aws-load-balancer-security-groups: "${module.kubernetes.node_security_group_id}"
       type: LoadBalancer
       external:
         enabled: "true"
@@ -320,6 +322,7 @@ spec:
       enabled: "true"
       annotations:
         service.beta.kubernetes.io/aws-load-balancer-internal: "true"
+        service.beta.kubernetes.io/aws-load-balancer-security-groups: "${module.kubernetes.node_security_group_id}"
       type: LoadBalancer
       external:
         enabled: "true"

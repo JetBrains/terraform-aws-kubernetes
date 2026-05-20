@@ -777,10 +777,10 @@ variable "cluster_security_group" {
     additional_rules                   = optional(any)
     tags                               = optional(map(string))
   })
-  description = "The security group configuration for the Kubernetes cluster"
+  description = "The security group configuration for the Kubernetes cluster. Set create_primary_security_group_tags to false (default) so var.tags are not copied onto eks-cluster-sg; AWS still applies kubernetes.io/cluster on that SG. Do not set karpenter.sh/discovery in tags."
   default = {
     create_default                     = true
-    create_primary_security_group_tags = true
+    create_primary_security_group_tags = false
     id                                 = null
     name                               = null
     use_name_prefix                    = true
@@ -1499,7 +1499,7 @@ variable "cluster_autoscaler_subnet_selector" {
 
 variable "tags" {
   type        = map(string)
-  description = "Specify a list of tags as key/value pairs. These tags will be applied to all resources created by this module"
+  description = "Specify a list of tags as key/value pairs. These tags will be applied to all resources created by this module. Do not set karpenter.sh/discovery here; it is applied only to the node security group so eks-cluster-sg is not selected by Karpenter."
   default = {
     ResourceCreatedBy = "TerraformModule:terraform-aws-kubernetes"
   }

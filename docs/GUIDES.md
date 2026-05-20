@@ -4,7 +4,7 @@ This page outlines what services are available in the Kubernetes cluster and how
 
 ## Available cluster services
 
-| Cluster Service            | Deployment Namespace | Purpose                                                                       | 
+| Cluster Service            | Deployment Namespace | Purpose                                                                       |
 |:---------------------------|:---------------------|:------------------------------------------------------------------------------|
 | Monitoring                 | kube-monitoring      | Monitoring and alerting of resources within the Kubernetes cluster.           |
 | Cluster metrics            | kube-monitoring      | Aggregator of metrics from the Kubernetes API.                                |
@@ -90,10 +90,22 @@ that namespace). Compared to earlier releases, this branch:
 - **Subnets**: Private node subnets get `karpenter.sh/discovery` from `coalesce(cluster_autoscaler_subnet_selector,
   prefix)`, matching the default `EC2NodeClass` subnet selector. Set `cluster_autoscaler_subnet_selector` when the tag
   value must differ from `var.prefix`.
+- **Security groups**: `karpenter.sh/discovery` is set only on the node security group (`node_security_group_tags`),
+  not on global EKS module tags. Default `cluster_security_group.create_primary_security_group_tags` is `false` so
+  `var.tags` are not copied onto `eks-cluster-sg` (AWS still adds `kubernetes.io/cluster/<name>` on that SG). The
+  primary cluster SG must not carry `karpenter.sh/discovery`: Karpenter would attach it with the node SG, and the AWS
+  cloud provider rejects LoadBalancer sync when more than one attached SG has `kubernetes.io/cluster/<cluster-name>`.
+  Do not add `karpenter.sh/discovery` to `tags`, `cluster_tags`, or `cluster_security_group.tags`. See the
+  [terraform-aws-eks FAQ](https://github.com/terraform-aws-modules/terraform-aws-eks/blob/master/docs/faq.md) and
+  [issue #2761](https://github.com/terraform-aws-modules/terraform-aws-eks/issues/2761): with Karpenter, keep discovery
+  on the node SG only; the node SG may still get `kubernetes.io/cluster` from the module (v20.37.2).
 - **Default manifests**: The default `EC2NodeClass` uses `amiSelectorTerms` with `al2023@latest`, `kubelet.maxPods: 25`,
   and explicit root `blockDeviceMappings` (including `deviceName`). The default `NodePool` uses
   `karpenter.k8s.aws/instance-local-nvme` for local disk size, `WhenEmptyOrUnderutilized` consolidation with
   `consolidateAfter: 0s`, and spot plus on-demand capacity types.
+- **Metrics**: The chart exposes controller metrics on port `8080` at `/metrics`. Default Helm values annotate the
+  metrics `Service` for Prometheus and create a `ServiceMonitor` labeled `release: kube-prometheus-stack`. A Helm param
+  keeps `spec.serviceMonitor.enabled` true even when you override `cluster_autoscaler.helm_chart_values`.
 
 Override chart version, values, or the kubectl manifests as needed for your cluster.
 
@@ -104,7 +116,7 @@ Override chart version, values, or the kubectl manifests as needed for your clus
 At the moment, the module assignes the IAM Role `arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy` to the entity that deploys this module.
 This is the default because it is necessary to further configure the cluster in Terraform and create a unified life cycle for cluster services.
 
-Use the variable `cluster_access_management` to provide access to your users in the cluster. 
+Use the variable `cluster_access_management` to provide access to your users in the cluster.
 
 Given that:
 
@@ -118,7 +130,7 @@ export EKS_CLUSTER_NAME="kube-cluster"
 aws eks update-kubeconfig \
   --name "${EKS_CLUSTER_NAME}" \
   --kubeconfig "~/.kube/${EKS_CLUSTER_NAME}.yaml"
-export KUBECONFIG="$HOME/.kube/${EKS_CLUSTER_NAME}.yaml" 
+export KUBECONFIG="$HOME/.kube/${EKS_CLUSTER_NAME}.yaml"
 ```
 
 Note:
@@ -218,6 +230,27 @@ Check out this [Prometheus Overview](https://prometheus.io/docs/introduction/ove
 
 To get started with Prometheus Operator, reference this [user-guide](https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/user-guides/getting-started.md).
 
+#### Default chart resources and ServiceMonitors
+
+Several cluster services ship with pinned CPU and memory requests or limits in Terraform default Helm values.
+They also enable Prometheus `ServiceMonitor` objects labeled `release: kube-prometheus-stack` where the chart
+supports it:
+
+- **Monitoring stack** (`kube-prometheus-operator`): Prometheus, Alertmanager, Grafana, kube-state-metrics, and
+  node-exporter resource limits; ServiceMonitors for Grafana, Alertmanager, kube-state-metrics, and Prometheus
+  self-monitoring.
+- **Logging** (`kube-loki`, `kube-promtail`): Loki and Promtail resources; Promtail ServiceMonitor.
+- **Ingress controllers** (public and private): controller resources; metrics ServiceMonitors and PrometheusRules.
+- **Karpenter** (`kube-karpenter`): controller resources; ServiceMonitor (also enforced via Helm param).
+- **Metrics server** (`kube-metrics-server`): resources and ServiceMonitor.
+- **Descheduler** (`kube-descheduler`): resources and ServiceMonitor.
+- **Node rebooter** (`kube-node-reboot`): resources and ServiceMonitor.
+
+Grafana also imports community dashboards for ingress, storage, Karpenter, Loki, Promtail, metrics-server
+utilization, and node rebooter. Dashboards that use `${DS_PROMETHEUS}` / `${DS_LOKI}` placeholders need
+`datasource` name/value mapping in `monitoring.tf` (not a plain `datasource: Prometheus` string). Override
+any chart with the matching `helm_chart_values` variable.
+
 #### Specify what is the Prometheus endpoint
 
 This section will detail how to use the ServiceMonitor object to configure the targets to monitor. A ServiceMonitor specifies
@@ -293,7 +326,7 @@ Prometheus Operator monitors at cluster level for any PrometheusRule object.
 
 #### Credentials for Grafana
 
-The module generates when the module is instantiated for the first time a random password and random user for Grafana root user creds. 
+The module generates when the module is instantiated for the first time a random password and random user for Grafana root user creds.
 These creds are stored in the AWS Secrets Manager. The actual path to the secret is stored in the output variable [cluster_ssm_params_paths](../outputs.tf).
 
 ## Module Outputs
@@ -453,4 +486,3 @@ The following outputs are marked as sensitive and contain Helm chart values or d
 - **`cluster_node_rebooter`**: Node rebooter/patcher Helm chart values and configuration
 
 **Note**: These sensitive outputs contain complete Helm chart configurations and should be handled carefully. They are primarily useful for debugging or when you need to reference specific deployment details in other Terraform configurations.
-

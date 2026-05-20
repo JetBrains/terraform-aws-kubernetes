@@ -1,9 +1,20 @@
 locals {
   kube_node_patcher_default_values = <<VALUES
 spec:
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 128Mi
   metrics:
     create: true
     labels:
+      release: kube-prometheus-stack
+  serviceMonitor:
+    enabled: true
+    additionalLabels:
       release: kube-prometheus-stack
   service:
     annotations:
