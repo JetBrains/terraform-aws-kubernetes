@@ -152,6 +152,13 @@ spec:
       enableStatefulSetAutoDeletePVC: true
       size: 10Gi
       storageClass: standard
+  monitoring:
+    serviceMonitor:
+      enabled: true
+    selfMonitoring:
+      enabled: false
+    lokiCanary:
+      enabled: false
   singleBinary:
     replicas: 1
     persistence:
@@ -302,7 +309,7 @@ module "cluster_logging_collector" {
   cluster_logging_collector_helm_chart_repository          = try(coalesce(var.cluster_logging_collector.helm_chart_repository, "oci://registry.jetbrains.team/p/helm/library"), "oci://registry.jetbrains.team/p/helm/library")
   cluster_logging_collector_helm_chart_repository_config   = try(coalesce(var.cluster_logging_collector.helm_chart_repository_config, null), null)
   cluster_logging_collector_helm_chart_version             = try(coalesce(var.cluster_logging_collector.helm_chart_version, "6.15.5"), "6.15.5")
-  cluster_logging_collector_helm_chart_name                = try(coalesce(var.cluster_logging_collector.helm_chart_name, "kube-grafana-loki"), "kube-grafana-loki")
+  cluster_logging_collector_helm_chart_name                = try(coalesce(var.cluster_logging_collector.helm_chart_name, "kube-grafana-promtail"), "kube-grafana-promtail")
   cluster_logging_collector_namespace                      = try(coalesce(var.cluster_logging_collector.helm_chart_namespace, "kube-monitoring"), "kube-monitoring")
   cluster_logging_collector_create_namespace_if_not_exists = try(coalesce(var.cluster_logging_collector.create_namespace_if_not_exists, true), true)
   cluster_logging_collector_default_values_dot_yaml        = try(coalesce(var.cluster_logging_collector.helm_chart_values, local.cluster_logging_collector_default_values), local.cluster_logging_collector_default_values)
