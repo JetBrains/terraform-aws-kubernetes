@@ -6,13 +6,45 @@ spec:
       replication_factor: 1
     storage:
       type: 'filesystem'
+    schemaConfig:
+      configs:
+        - from: "2022-01-11"
+          store: boltdb-shipper
+          object_store: filesystem
+          schema: v12
+          index:
+            prefix: loki_index_
+            period: 24h
+        - from: "2026-06-01"
+          store: tsdb
+          object_store: filesystem
+          schema: v13
+          index:
+            prefix: loki_index_
+            period: 24h
+    storage_config:
+      boltdb_shipper:
+        active_index_directory: /var/loki/boltdb-shipper-active
+        cache_location: /var/loki/boltdb-shipper-cache
+        shared_store: filesystem
+      tsdb_shipper:
+        active_index_directory: /var/loki/tsdb-index
+        cache_location: /var/loki/tsdb-cache
     auth_enabled: false
     limits_config:
       enforce_metric_name: true
       reject_old_samples: true
-      reject_old_samples_max_age: 72h
+      reject_old_samples_max_age: 168h
       max_cache_freshness_per_query: 10m
-      split_queries_by_interval: 15m
+      split_queries_by_interval: 1h
+      retention_period: 168h
+      max_query_lookback: 168h
+    compactor:
+      working_directory: /var/loki/compactor
+      compaction_interval: 10m
+      retention_enabled: true
+      retention_delete_delay: 2h
+      delete_request_store: filesystem
     config: |
       {{- if .Values.enterprise.enabled }}
       {{- tpl .Values.enterprise.config . }}
@@ -85,13 +117,20 @@ spec:
             index:
               prefix: loki_index_
               period: 24h
+          - from: 2026-06-01
+            store: tsdb
+            object_store: {{ .Values.loki.storage.type }}
+            schema: v13
+            index:
+              prefix: loki_index_
+              period: 24h
       {{- end }}
 
       {{ include "loki.rulerConfig" . }}
 
       table_manager:
         retention_deletes_enabled: true
-        retention_period: 72h
+        retention_period: 168h
 
       {{- with .Values.loki.memcached.results_cache }}
       query_range:
@@ -137,21 +176,59 @@ spec:
       querier:
         {{- tpl (. | toYaml) $ | nindent 4 }}
       {{- end }}
+  gateway:
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 256Mi
   write:
     persistence:
       enableStatefulSetAutoDeletePVC: true
-      size: 10Gi
+      size: 50Gi
       storageClass: standard
+    resources:
+      requests:
+        cpu: 500m
+        memory: 1Gi
+      limits:
+        cpu: 2
+        memory: 2Gi
+    extraEnv:
+      - name: GOMEMLIMIT
+        value: 1800MiB
   read:
     persistence:
       enableStatefulSetAutoDeletePVC: true
-      size: 10Gi
+      size: 50Gi
       storageClass: standard
+    resources:
+      requests:
+        cpu: 250m
+        memory: 512Mi
+      limits:
+        cpu: 1
+        memory: 1Gi
+    extraEnv:
+      - name: GOMEMLIMIT
+        value: 900MiB
   backend:
     persistence:
       enableStatefulSetAutoDeletePVC: true
-      size: 10Gi
+      size: 50Gi
       storageClass: standard
+    resources:
+      requests:
+        cpu: 250m
+        memory: 512Mi
+      limits:
+        cpu: 1
+        memory: 1Gi
+    extraEnv:
+      - name: GOMEMLIMIT
+        value: 900MiB
   monitoring:
     serviceMonitor:
       enabled: true
@@ -164,8 +241,18 @@ spec:
     persistence:
       enableStatefulSetAutoDeletePVC: true
       enabled: true
-      size: 10Gi
+      size: 50Gi
       storageClass: standard
+    resources:
+      requests:
+        cpu: 500m
+        memory: 1Gi
+      limits:
+        cpu: 2
+        memory: 2Gi
+    extraEnv:
+      - name: GOMEMLIMIT
+        value: 1800MiB
   extraObjects:
   - apiVersion: monitoring.coreos.com/v1
     kind: PrometheusRule
@@ -174,29 +261,104 @@ spec:
       namespace: "{{ .Release.Namespace }}"
     spec:
       groups:
-        - name: loki_custom_example_rules
+        - name: loki_custom_rules
           rules:
-          - alert: ExampleCustomAlertForLoki
-            expr: sum(count_over_time({app="loki"}[1m:1h])) > 0
-            for: 3m
+          - alert: LokiIngestionLag
+            expr: max by (namespace, job) (loki_ingester_flush_queue_length) > 50
+            for: 15m
             labels:
               severity: warning
               category: logs
-              cluster: kube-loki
-              message: "loki has encountered errors"
+            annotations:
+              summary: Loki ingester flush queue is backing up
+              description: |
+                The ingester flush queue length is {{`{{`}} printf "%.0f" $value {{`}}`}} for
+                {{`{{`}} $labels.namespace {{`}}`}}/{{`{{`}} $labels.job {{`}}`}}. Ingestion may be lagging
+                behind flush capacity; check write path load and storage health.
+          - alert: LokiWriteComponentUnavailable
+            expr: min by (namespace, job) (up{job=~".+/write"}) < 1
+            for: 5m
+            labels:
+              severity: critical
+              category: logs
+            annotations:
+              summary: Loki write component is unavailable
+              description: |
+                One or more Loki write scrape targets are down in namespace
+                {{`{{`}} $labels.namespace {{`}}`}} (job {{`{{`}} $labels.job {{`}}`}}). Log ingestion may
+                be impaired.
+          - alert: LokiReadComponentUnavailable
+            expr: min by (namespace, job) (up{job=~".+/read"}) < 1
+            for: 5m
+            labels:
+              severity: critical
+              category: logs
+            annotations:
+              summary: Loki read component is unavailable
+              description: |
+                One or more Loki read scrape targets are down in namespace
+                {{`{{`}} $labels.namespace {{`}}`}} (job {{`{{`}} $labels.job {{`}}`}}). Log queries may
+                fail or return incomplete results.
+          - alert: LokiIngesterFlushFailureRateHigh
+            expr: |
+              (
+                sum(rate(loki_ingester_chunks_flush_errors_total[5m])) by (namespace, job)
+                /
+                sum(
+                  rate(loki_ingester_chunks_flushed_total[5m])
+                  + rate(loki_ingester_chunks_flush_errors_total[5m])
+                ) by (namespace, job)
+              ) > 0.05
+              and sum(rate(loki_ingester_chunks_flush_errors_total[5m])) by (namespace, job) > 0
+            for: 10m
+            labels:
+              severity: critical
+              category: logs
+            annotations:
+              summary: Loki ingester chunk flush error rate is high
+              description: |
+                More than 5% of ingester chunk flush operations are failing for
+                {{`{{`}} $labels.namespace {{`}}`}}/{{`{{`}} $labels.job {{`}}`}} (current rate
+                {{`{{`}} printf "%.2f" $value {{`}}`}}). Check object storage credentials,
+                permissions, and disk space on write nodes.
 VALUES
 
   cluster_logging_collector_default_values = <<VALUES
 spec:
   daemonset:
     enabled: true
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 256Mi
   serviceMonitor:
     enabled: true
+  prometheusRule:
+    enabled: true
+    rules:
+      - alert: PromtailTargetScrapeFailures
+        expr: sum(rate(promtail_targets_failed_total[5m])) by (namespace, job, reason) > 0
+        for: 10m
+        labels:
+          severity: warning
+          category: logs
+        annotations:
+          summary: Promtail is failing to scrape log targets
+          description: |
+            Promtail target scrape failures are occurring in {{`{{`}} $labels.namespace {{`}}`}}
+            (job {{`{{`}} $labels.job {{`}}`}}, reason {{`{{`}} $labels.reason {{`}}`}}). Check file paths,
+            permissions, and relabel rules for affected targets.
   config:
     logLevel: info
     serverPort: 3101
+    # Promtail must send X-Scope-OrgID (tenant_id) when Loki uses multi-tenant mode.
+    # Align with Grafana Loki datasource (fake) in monitoring.tf.
     clients:
       - url: http://loki-headless:3100/loki/api/v1/push
+        tenant_id: fake
     snippets:
       pipelineStages:
         - cri: {}

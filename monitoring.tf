@@ -22,7 +22,6 @@ spec:
   grafana:
     defaultDashboardsTimezone: utc
     extraConfigmapMounts: []
-    additionalDataSources: []
     ingress:
       enabled: false
       hosts: []
@@ -31,6 +30,12 @@ spec:
       type: loki
       url: 'http://loki-headless:3100'
       editable: false
+      jsonData:
+        maxLines: 2000
+        timeout: 60
+        httpHeaderName1: X-Scope-OrgID
+      secureJsonData:
+        httpHeaderValue1: fake
     dashboardProviders:
       dashboardproviders.yaml:
         apiVersion: 1
