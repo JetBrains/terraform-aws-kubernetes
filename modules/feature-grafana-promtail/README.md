@@ -1,7 +1,7 @@
 <!-- BEGIN_TF_DOCS -->
 # terraform-feature-grafana-promtail
 
-This module deploys the Grafana Promtail Helm chart into a Kubernetes cluster.
+This module deploys the Grafana Promtail Helm chart into a Kubernetes cluster. 
 
 ## Requirements
 

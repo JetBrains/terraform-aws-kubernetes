@@ -1,7 +1,7 @@
 <!-- BEGIN_TF_DOCS -->
 # terraform-template-ingress
 
-This module deploys an Nginx Ingress Controller Helm chart into a Kubernetes cluster.
+This module deploys an Nginx Ingress Controller Helm chart into a Kubernetes cluster. 
 
 ## Requirements
 

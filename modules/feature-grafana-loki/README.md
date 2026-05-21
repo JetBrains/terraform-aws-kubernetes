@@ -1,7 +1,7 @@
 <!-- BEGIN_TF_DOCS -->
 # terraform-feature-grafana-loki
 
-This module deploys the Grafana Loki Helm chart into a Kubernetes cluster.
+This module deploys the Grafana Loki Helm chart into a Kubernetes cluster. 
 
 ## Requirements
 

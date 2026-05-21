@@ -1,7 +1,7 @@
 <!-- BEGIN_TF_DOCS -->
 # terraform-feature-monitoring-metrics
 
-This module deploys the Prometheus Operator Helm chart into a Kubernetes cluster.
+This module deploys the Prometheus Operator Helm chart into a Kubernetes cluster. 
 
 ## Requirements
 

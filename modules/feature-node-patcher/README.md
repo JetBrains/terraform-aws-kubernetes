@@ -1,7 +1,7 @@
 <!-- BEGIN_TF_DOCS -->
 # terraform-feature-node-patcher
 
-This module deploys the Kured Helm chart into a Kubernetes cluster.
+This module deploys the Kured Helm chart into a Kubernetes cluster. 
 
 ## Requirements
 

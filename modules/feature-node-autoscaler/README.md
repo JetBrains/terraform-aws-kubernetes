@@ -1,7 +1,7 @@
 <!-- BEGIN_TF_DOCS -->
 # terraform-feature-node-autoscaler
 
-This module deploys the Karpenter Helm chart into a Kubernetes cluster.
+This module deploys the Karpenter Helm chart into a Kubernetes cluster. 
 
 ## Requirements
 

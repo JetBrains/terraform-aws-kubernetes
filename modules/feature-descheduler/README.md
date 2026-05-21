@@ -1,7 +1,7 @@
 <!-- BEGIN_TF_DOCS -->
 # terraform-feature-descheduler
 
-This module deploys the Descheduler Helm chart into a Kubernetes cluster.
+This module deploys the Descheduler Helm chart into a Kubernetes cluster. 
 
 ## Requirements
 

@@ -1,7 +1,7 @@
 <!-- BEGIN_TF_DOCS -->
 # terraform-feature-metrics-server
 
-This module deploys the Metrics Server Helm chart into a Kubernetes cluster.
+This module deploys the Metrics Server Helm chart into a Kubernetes cluster. 
 
 ## Requirements
 
