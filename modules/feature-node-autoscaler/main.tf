@@ -1,6 +1,15 @@
 locals {
   karpenter_default_values_dot_yaml = <<VALUES
 spec:
+  service:
+    annotations:
+      prometheus.io/scrape: "true"
+      prometheus.io/port: "8080"
+      prometheus.io/path: "/metrics"
+  serviceMonitor:
+    enabled: true
+    additionalLabels:
+      release: kube-prometheus-stack
   serviceAccount:
     # -- Specifies if a ServiceAccount should be created.
     create: true

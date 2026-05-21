@@ -777,10 +777,10 @@ variable "cluster_security_group" {
     additional_rules                   = optional(any)
     tags                               = optional(map(string))
   })
-  description = "The security group configuration for the Kubernetes cluster"
+  description = "The security group configuration for the Kubernetes cluster. Set create_primary_security_group_tags to false (default) so var.tags are not copied onto eks-cluster-sg; AWS still applies kubernetes.io/cluster on that SG. Do not set karpenter.sh/discovery in tags."
   default = {
     create_default                     = true
-    create_primary_security_group_tags = true
+    create_primary_security_group_tags = false
     id                                 = null
     name                               = null
     use_name_prefix                    = true
@@ -1133,7 +1133,7 @@ variable "cluster_monitoring" {
   })
   description = "The monitoring configuration for the Kubernetes cluster"
   default = {
-    helm_chart_repository          = "oci://public.registry.jetbrains.space/p/helm/library"
+    helm_chart_repository          = "oci://registry.jetbrains.team/p/helm/library"
     helm_chart_repository_config   = null
     helm_chart_version             = "56.21.1"
     helm_chart_name                = "kube-prometheus-operator"
@@ -1171,7 +1171,7 @@ variable "cluster_node_patcher" {
   })
   description = "The node patcher configuration for the Kubernetes cluster"
   default = {
-    helm_chart_repository          = "oci://public.registry.jetbrains.space/p/helm/library"
+    helm_chart_repository          = "oci://registry.jetbrains.team/p/helm/library"
     helm_chart_repository_config   = null
     helm_chart_version             = "5.4.3"
     helm_chart_name                = "kube-node-reboot"
@@ -1209,7 +1209,7 @@ variable "cluster_metrics_server" {
   })
   description = "The metrics server configuration for the Kubernetes cluster"
   default = {
-    helm_chart_repository          = "oci://public.registry.jetbrains.space/p/helm/library"
+    helm_chart_repository          = "oci://registry.jetbrains.team/p/helm/library"
     helm_chart_repository_config   = null
     helm_chart_version             = "3.12.0"
     helm_chart_name                = "kube-metrics-server"
@@ -1247,7 +1247,7 @@ variable "cluster_logging" {
   })
   description = "The cluster logging configuration for the Kubernetes cluster"
   default = {
-    helm_chart_repository          = "oci://public.registry.jetbrains.space/p/helm/library"
+    helm_chart_repository          = "oci://registry.jetbrains.team/p/helm/library"
     helm_chart_repository_config   = null
     helm_chart_version             = "5.43.3"
     helm_chart_name                = "kube-grafana-loki"
@@ -1279,7 +1279,7 @@ variable "cluster_logging_collector" {
   })
   description = "The cluster logging collector configuration for the Kubernetes cluster"
   default = {
-    helm_chart_repository          = "oci://public.registry.jetbrains.space/p/helm/library"
+    helm_chart_repository          = "oci://registry.jetbrains.team/p/helm/library"
     helm_chart_repository_config   = null
     helm_chart_version             = "6.15.5"
     helm_chart_name                = "kube-grafana-promtail"
@@ -1317,7 +1317,7 @@ variable "cluster_public_ingress" {
   })
   description = "The cluster public ingress configuration for the Kubernetes cluster"
   default = {
-    helm_chart_repository          = "oci://public.registry.jetbrains.space/p/helm/library"
+    helm_chart_repository          = "oci://registry.jetbrains.team/p/helm/library"
     helm_chart_repository_config   = null
     helm_chart_version             = "4.10.0"
     helm_chart_name                = "kube-ingress-nginx"
@@ -1355,7 +1355,7 @@ variable "cluster_private_ingress" {
   })
   description = "The cluster private ingress configuration for the Kubernetes cluster"
   default = {
-    helm_chart_repository          = "oci://public.registry.jetbrains.space/p/helm/library"
+    helm_chart_repository          = "oci://registry.jetbrains.team/p/helm/library"
     helm_chart_repository_config   = null
     helm_chart_version             = "4.10.0"
     helm_chart_name                = "kube-ingress-nginx"
@@ -1391,9 +1391,9 @@ variable "cluster_descheduler" {
   })
   description = "The descheduler configuration for the Kubernetes cluster"
   default = {
-    helm_chart_repository        = "oci://public.registry.jetbrains.space/p/helm/library"
+    helm_chart_repository        = "oci://registry.jetbrains.team/p/helm/library"
     helm_chart_repository_config = null
-    helm_chart_version           = "0.29.0"
+    helm_chart_version           = "0.31.0"
     helm_chart_name              = "kube-descheduler"
     helm_chart_params            = []
     helm_chart_secrets           = []
@@ -1499,11 +1499,8 @@ variable "cluster_autoscaler_subnet_selector" {
 
 variable "tags" {
   type        = map(string)
-  description = "Specify a list of tags as key/value pairs. These tags will be applied to all resources created by this module"
+  description = "Specify a list of tags as key/value pairs. These tags will be applied to all resources created by this module. Do not set karpenter.sh/discovery here; it is applied only to the node security group so eks-cluster-sg is not selected by Karpenter."
   default = {
     ResourceCreatedBy = "TerraformModule:terraform-aws-kubernetes"
   }
 }
-
-
-

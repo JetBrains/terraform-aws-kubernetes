@@ -1,7 +1,7 @@
 variable "helm_chart_repository" {
   type        = string
   description = "The Helm chart repository."
-  default     = "oci://public.registry.jetbrains.space/p/helm/library"
+  default     = "oci://registry.jetbrains.team/p/helm/library"
 }
 
 variable "helm_chart_name" {

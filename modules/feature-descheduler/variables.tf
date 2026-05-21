@@ -1,7 +1,7 @@
 variable "descheduler_helm_chart_repository" {
   description = "The URL of the chart to use for descheduler controller"
   type        = string
-  default     = "oci://public.registry.jetbrains.space/p/helm/library"
+  default     = "oci://registry.jetbrains.team/p/helm/library"
 }
 
 variable "descheduler_helm_chart_repository_config" {
@@ -19,7 +19,7 @@ variable "descheduler_helm_chart_repository_config" {
 variable "descheduler_helm_chart_version" {
   description = "The version of the chart to use for descheduler controller"
   type        = string
-  default     = "0.29.0"
+  default     = "0.31.0"
 }
 
 variable "descheduler_helm_chart_name" {

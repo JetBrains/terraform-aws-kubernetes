@@ -145,10 +145,12 @@ module "kube_node_autoscaler" {
   helm_chart_version           = try(coalesce(var.cluster_autoscaler.helm_chart_version, "1.10.0"), "1.10.0")
   helm_chart_repository_config = try(coalesce(var.cluster_autoscaler.helm_chart_repository_config, null), null)
   helm_chart_values            = try(coalesce(var.cluster_autoscaler.helm_chart_values, null), null)
-  helm_chart_params = concat(var.cluster_autoscaler.helm_chart_params, [{
-    name  = "spec.serviceMonitor.enabled"
-    value = "true"
-  }])
+  helm_chart_params = concat(var.cluster_autoscaler.helm_chart_params, [
+    {
+      name  = "spec.serviceMonitor.enabled"
+      value = "true"
+    },
+  ])
   helm_chart_secrets           = var.cluster_autoscaler.helm_chart_secrets
   kubernetes_cluster_name      = module.kubernetes.cluster_name
   kubernetes_cluster_endpoint  = module.kubernetes.cluster_endpoint

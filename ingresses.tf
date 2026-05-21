@@ -1,4 +1,10 @@
 locals {
+  ingress_vpc_cidr = try(coalesce(var.cluster_network_internal_vpc_cidr, "10.0.0.0/16"), "10.0.0.0/16")
+
+  # Hardened public ingress (kube-ingress-nginx). Keep in sync with JetBrains/kubernetes/aws
+  # ingresses.tf local.public_ingress_controller_default_values when upgrading module version.
+  # proxy-real-ip-cidr is set from cluster_network_internal_vpc_cidr.
+  # Controller image is newer than chart 4.10.0 appVersion (v1.10.0); chart version stays 4.10.0 per Terraform.
   public_ingress_controller_default_values = <<VALUES
 spec:
   fullnameOverride: "public-ingress-nginx"
@@ -6,14 +12,64 @@ spec:
     cluster_service: "true"
     public: "true"
   controller:
+    enableAnnotationValidations: true
+    image:
+      registry: registry.k8s.io
+      image: ingress-nginx/controller
+      tag: "v1.15.1"
+      digest: sha256:594ceea76b01c592858f803f9ff4d2cb40542cae2060410b2c95f75907d659e1
+      pullPolicy: IfNotPresent
     ingressClassResource:
       name: public-ingress-nginx
       enabled: "${var.cluster_public_ingress_create}"
       default: "false"
       controllerValue: "k8s.io/public-ingress-nginx"
     ingressClass: public-ingress-nginx
-    extraArgs: {}
+    watchIngressWithoutClass: false
+    hostPort:
+      enabled: false
+    replicaCount: 3
+    minAvailable: 3
+    extraArgs:
+      metrics-per-undefined-host: "true"
+      enable-metrics: "true"
     extraEnvs: []
+    addHeaders:
+      X-Content-Type-Options: "nosniff"
+      X-Frame-Options: "SAMEORIGIN"
+      Referrer-Policy: "strict-origin-when-cross-origin"
+      Permissions-Policy: "interest-cohort=()"
+    config:
+      annotations-risk-level: "High"
+      allow-snippet-annotations: "false"
+      allow-cross-namespace-resources: "false"
+      annotation-value-word-blocklist: "load_module,lua_package,_by_lua,location,root,proxy_pass,serviceaccount"
+      client-header-buffer-size: "32k"
+      compute-full-forwarded-for: "true"
+      enable-real-ip: "true"
+      force-ssl-redirect: "true"
+      forwarded-for-header: "X-Forwarded-For"
+      large-client-header-buffers: "4 32k"
+      proxy-buffer-size: "128k"
+      proxy-buffers: "4 256k"
+      proxy-busy-buffers-size: "256k"
+      proxy-real-ip-cidr: "${local.ingress_vpc_cidr}"
+      ssl-redirect: "true"
+      use-forwarded-headers: "true"
+      use-proxy-protocol: "false"
+      hsts: "true"
+      hsts-include-subdomains: "true"
+      hsts-max-age: "31536000"
+      hsts-preload: "true"
+      hide-headers: "Server,X-Powered-By"
+      server-tokens: "false"
+      ssl-protocols: "TLSv1.2 TLSv1.3"
+      ssl-ciphers: "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305"
+      ssl-session-tickets: "false"
+      ssl-ecdh-curve: "X25519:prime256v1:secp384r1"
+      log-format-escape-json: "true"
+      limit-req-status-code: "429"
+      strict-validate-path-type: "true"
     affinity:
       podAntiAffinity:
         requiredDuringSchedulingIgnoredDuringExecution:
@@ -38,7 +94,7 @@ spec:
         whenUnsatisfiable: DoNotSchedule
         labelSelector:
           matchLabels:
-            app.kubernetes.io/instance: ingress-nginx-internal
+            app.kubernetes.io/instance: public-ingress-nginx
     nodeSelector:
       kubernetes.io/os: linux
     resources:
@@ -49,8 +105,8 @@ spec:
         cpu: 2
         memory: 2048Mi
     autoscaling:
-      enabled: "false"
-      minReplicas: 1
+      enabled: "true"
+      minReplicas: 3
       maxReplicas: 7
       targetCPUUtilizationPercentage: 71
       targetMemoryUtilizationPercentage: 71
@@ -73,13 +129,15 @@ spec:
       configMapKey: ""
     service:
       enabled: "true"
+      annotations:
+        service.beta.kubernetes.io/aws-load-balancer-security-groups: "${module.kubernetes.node_security_group_id}"
       type: LoadBalancer
       external:
         enabled: "true"
     metrics:
       port: 10254
       portName: metrics
-      enabled: "true"
+      enabled: true
       service:
         annotations:
           prometheus.io/scrape: "true"
@@ -134,6 +192,10 @@ spec:
   udp: {}
 VALUES
 
+  # Hardened private ingress (kube-ingress-nginx). Keep in sync with JetBrains/kubernetes/aws
+  # ingresses.tf local.private_ingress_controller_default_values when upgrading module version.
+  # proxy-real-ip-cidr is set from cluster_network_internal_vpc_cidr.
+  # Controller image is newer than chart 4.10.0 appVersion (v1.10.0); chart version stays 4.10.0 per Terraform.
   private_ingress_controller_default_values = <<VALUES
 spec:
   fullnameOverride: "private-ingress-nginx"
@@ -141,14 +203,64 @@ spec:
     cluster_service: "true"
     public: "false"
   controller:
+    enableAnnotationValidations: true
+    image:
+      registry: registry.k8s.io
+      image: ingress-nginx/controller
+      tag: "v1.15.1"
+      digest: sha256:594ceea76b01c592858f803f9ff4d2cb40542cae2060410b2c95f75907d659e1
+      pullPolicy: IfNotPresent
     ingressClassResource:
       name: private-ingress-nginx
       enabled: "true"
       default: "true"
       controllerValue: "k8s.io/private-ingress-nginx"
     ingressClass: private-ingress-nginx
-    extraArgs: {}
+    watchIngressWithoutClass: false
+    hostPort:
+      enabled: false
+    replicaCount: 3
+    minAvailable: 3
+    extraArgs:
+      metrics-per-undefined-host: "true"
+      enable-metrics: "true"
     extraEnvs: []
+    addHeaders:
+      X-Content-Type-Options: "nosniff"
+      X-Frame-Options: "SAMEORIGIN"
+      Referrer-Policy: "strict-origin-when-cross-origin"
+      Permissions-Policy: "interest-cohort=()"
+    config:
+      annotations-risk-level: "High"
+      allow-snippet-annotations: "false"
+      allow-cross-namespace-resources: "false"
+      annotation-value-word-blocklist: "load_module,lua_package,_by_lua,location,root,proxy_pass,serviceaccount"
+      client-header-buffer-size: "32k"
+      compute-full-forwarded-for: "true"
+      enable-real-ip: "true"
+      force-ssl-redirect: "true"
+      forwarded-for-header: "X-Forwarded-For"
+      large-client-header-buffers: "4 32k"
+      proxy-buffer-size: "128k"
+      proxy-buffers: "4 256k"
+      proxy-busy-buffers-size: "256k"
+      proxy-real-ip-cidr: "${local.ingress_vpc_cidr}"
+      ssl-redirect: "true"
+      use-forwarded-headers: "true"
+      use-proxy-protocol: "false"
+      hsts: "true"
+      hsts-include-subdomains: "true"
+      hsts-max-age: "31536000"
+      hsts-preload: "true"
+      hide-headers: "Server,X-Powered-By"
+      server-tokens: "false"
+      ssl-protocols: "TLSv1.2 TLSv1.3"
+      ssl-ciphers: "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305"
+      ssl-session-tickets: "false"
+      ssl-ecdh-curve: "X25519:prime256v1:secp384r1"
+      log-format-escape-json: "true"
+      limit-req-status-code: "429"
+      strict-validate-path-type: "true"
     affinity:
       podAntiAffinity:
         requiredDuringSchedulingIgnoredDuringExecution:
@@ -173,7 +285,7 @@ spec:
         whenUnsatisfiable: DoNotSchedule
         labelSelector:
           matchLabels:
-            app.kubernetes.io/instance: ingress-nginx-internal
+            app.kubernetes.io/instance: private-ingress-nginx
     nodeSelector:
       kubernetes.io/os: linux
     resources:
@@ -184,8 +296,8 @@ spec:
         cpu: 2
         memory: 2048Mi
     autoscaling:
-      enabled: "false"
-      minReplicas: 1
+      enabled: "true"
+      minReplicas: 3
       maxReplicas: 7
       targetCPUUtilizationPercentage: 71
       targetMemoryUtilizationPercentage: 71
@@ -210,13 +322,14 @@ spec:
       enabled: "true"
       annotations:
         service.beta.kubernetes.io/aws-load-balancer-internal: "true"
+        service.beta.kubernetes.io/aws-load-balancer-security-groups: "${module.kubernetes.node_security_group_id}"
       type: LoadBalancer
       external:
         enabled: "true"
     metrics:
       port: 10254
       portName: metrics
-      enabled: "true"
+      enabled: true
       service:
         annotations:
           prometheus.io/scrape: "true"
@@ -233,38 +346,38 @@ spec:
         additionalLabels:
           release: kube-prometheus-stack
         rules:
-         - alert: NGINXConfigFailed
-           expr: count(nginx_ingress_controller_config_last_reload_successful == 0) > 0
-           for: 1s
-           labels:
-             severity: critical
-           annotations:
-             description: bad ingress config - nginx config test failed
-             summary: uninstall the latest ingress changes to allow config reloads to resume
-         - alert: NGINXCertificateExpiry
-           expr: (avg(nginx_ingress_controller_ssl_expire_time_seconds) by (host) - time()) < 604800
-           for: 1s
-           labels:
-             severity: critical
-           annotations:
-             description: ssl certificate(s) will expire in less then a week
-             summary: renew expiring certificates to avoid downtime
-         - alert: NGINXTooMany500s
-           expr: 100 * ( sum( nginx_ingress_controller_requests{status=~"5.+"} ) / sum(nginx_ingress_controller_requests) ) > 5
-           for: 1m
-           labels:
-             severity: warning
-           annotations:
-             description: Too many 5XXs
-             summary: More than 5% of all requests returned 5XX, this requires your attention
-         - alert: NGINXTooMany400s
-           expr: 100 * ( sum( nginx_ingress_controller_requests{status=~"4.+"} ) / sum(nginx_ingress_controller_requests) ) > 5
-           for: 1m
-           labels:
-             severity: warning
-           annotations:
-             description: Too many 4XXs
-             summary: More than 5% of all requests returned 4XX, this requires your attention
+          - alert: NGINXConfigFailed
+            expr: count(nginx_ingress_controller_config_last_reload_successful == 0) > 0
+            for: 1s
+            labels:
+              severity: critical
+            annotations:
+              description: bad ingress config - nginx config test failed
+              summary: uninstall the latest ingress changes to allow config reloads to resume
+          - alert: NGINXCertificateExpiry
+            expr: (avg(nginx_ingress_controller_ssl_expire_time_seconds) by (host) - time()) < 604800
+            for: 1s
+            labels:
+              severity: critical
+            annotations:
+              description: ssl certificate(s) will expire in less then a week
+              summary: renew expiring certificates to avoid downtime
+          - alert: NGINXTooMany500s
+            expr: 100 * ( sum( nginx_ingress_controller_requests{status=~"5.+"} ) / sum(nginx_ingress_controller_requests) ) > 5
+            for: 1m
+            labels:
+              severity: warning
+            annotations:
+              description: Too many 5XXs
+              summary: More than 5% of all requests returned 5XX, this requires your attention
+          - alert: NGINXTooMany400s
+            expr: 100 * ( sum( nginx_ingress_controller_requests{status=~"4.+"} ) / sum(nginx_ingress_controller_requests) ) > 5
+            for: 1m
+            labels:
+              severity: warning
+            annotations:
+              description: Too many 4XXs
+              summary: More than 5% of all requests returned 4XX, this requires your attention
   admissionWebhooks:
     enabled: "false"
   tcp: {}
@@ -275,7 +388,7 @@ VALUES
 module "cluster_public_ingress_controller" {
   count                                  = var.cluster_public_ingress_create ? 1 : 0
   source                                 = "./modules/template-ingress"
-  ingress_helm_chart_repository          = try(coalesce(var.cluster_public_ingress.helm_chart_repository, "oci://public.registry.jetbrains.space/p/helm/library"), "oci://public.registry.jetbrains.space/p/helm/library")
+  ingress_helm_chart_repository          = try(coalesce(var.cluster_public_ingress.helm_chart_repository, "oci://registry.jetbrains.team/p/helm/library"), "oci://registry.jetbrains.team/p/helm/library")
   ingress_helm_chart_repository_config   = try(coalesce(var.cluster_public_ingress.helm_chart_repository_config, null), null)
   ingress_helm_chart_version             = try(coalesce(var.cluster_public_ingress.helm_chart_version, "4.10.0"), "4.10.0")
   ingress_helm_chart_name                = try(coalesce(var.cluster_public_ingress.helm_chart_name, "kube-ingress-nginx"), "kube-ingress-nginx")
@@ -290,7 +403,7 @@ module "cluster_public_ingress_controller" {
 module "cluster_private_ingress_controller" {
   count                                  = var.cluster_private_ingress_create ? 1 : 0
   source                                 = "./modules/template-ingress"
-  ingress_helm_chart_repository          = try(coalesce(var.cluster_private_ingress.helm_chart_repository, "oci://public.registry.jetbrains.space/p/helm/library"), "oci://public.registry.jetbrains.space/p/helm/library")
+  ingress_helm_chart_repository          = try(coalesce(var.cluster_private_ingress.helm_chart_repository, "oci://registry.jetbrains.team/p/helm/library"), "oci://registry.jetbrains.team/p/helm/library")
   ingress_helm_chart_repository_config   = try(coalesce(var.cluster_private_ingress.helm_chart_repository_config, null), null)
   ingress_helm_chart_version             = try(coalesce(var.cluster_private_ingress.helm_chart_version, "4.10.0"), "4.10.0")
   ingress_helm_chart_name                = try(coalesce(var.cluster_private_ingress.helm_chart_name, "kube-ingress-nginx"), "kube-ingress-nginx")
