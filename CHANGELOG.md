@@ -2,6 +2,12 @@
 ## [Unreleased]
 
 
+<a name="v4.0.0"></a>
+## [v4.0.0] - 2026-05-21
+### Features
+- **cluster-services:** harden observability defaults and cluster service Helm values #major ([#75](/issues/75))
+
+
 <a name="v3.8.0"></a>
 ## [v3.8.0] - 2026-04-10
 ### Bug Fixes
@@ -102,7 +108,8 @@
 - first commit
 
 
-[Unreleased]: /compare/v3.8.0...HEAD
+[Unreleased]: /compare/v4.0.0...HEAD
+[v4.0.0]: /compare/v3.8.0...v4.0.0
 [v3.8.0]: /compare/v3.7.0...v3.8.0
 [v3.7.0]: /compare/v3.6.0...v3.7.0
 [v3.6.0]: /compare/v3.5.0...v3.6.0
