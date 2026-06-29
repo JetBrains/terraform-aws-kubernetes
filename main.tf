@@ -34,7 +34,7 @@ locals {
 
 module "kubernetes" {
   source  = "terraform-aws-modules/eks/aws"
-  version = "20.37.2"
+  version = "21.24.0"
 
   create = try(coalesce(var.cluster_enabled, true), true)
   # Do not add karpenter.sh/discovery to module tags: create_cluster_primary_security_group_tags
